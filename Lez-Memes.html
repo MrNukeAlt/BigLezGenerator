@@ -1,138 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Big Lez Roulette - Skitz Edition</title>
+    <title>Random Playlist Jumper</title>
     <style>
-        body { 
-            background: #050505; 
-            color: #4CAF50; 
-            font-family: 'Courier New', Courier, monospace; 
+        body {
+            font-family: sans-serif;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
+            background-color: #1a1a1a;
+            color: white;
             margin: 0;
         }
-
-        .container { 
-            border: 4px solid #4CAF50; 
-            padding: 40px; 
-            border-radius: 20px; 
-            background: #111; 
-            text-align: center;
-            box-shadow: 0 0 40px rgba(76, 175, 80, 0.4);
-            max-width: 500px;
+        #player-container {
+            margin-bottom: 20px;
+            box-shadow: 0px 10px 30px rgba(0,0,0,0.5);
         }
-        
-        h1 { font-size: 2.8rem; margin-bottom: 5px; text-transform: uppercase; }
-        .subtitle { color: #666; margin-bottom: 30px; font-size: 1rem; letter-spacing: 1px; }
-
-        .btn-skitz { 
-            background: #4CAF50; 
-            color: white; 
-            border: none; 
-            padding: 25px 50px; 
-            font-size: 1.6rem; 
-            font-weight: bold; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            transition: all 0.15s ease;
-            box-shadow: 0 8px #2e6631;
-            width: 100%;
-            text-transform: uppercase;
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background 0.3s;
         }
-
-        .btn-skitz:hover { 
-            background: #66bb6a; 
-            transform: translateY(-2px);
-            box-shadow: 0 10px #2e6631;
+        button:hover {
+            background-color: #cc0000;
         }
-
-        .btn-skitz:active { 
-            box-shadow: 0 2px #2e6631; 
-            transform: translateY(6px); 
-        }
-
-        .status { margin-top: 25px; font-size: 0.75rem; color: #444; line-height: 1.5; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>BROWN TOWN ROULETTE</h1>
-        <div class="subtitle">"GET IN THE SHIP, DONNY"</div>
-
-        <button class="btn-skitz" onclick="goSkitz()">Get Random Moment</button>
-        
-        <div class="status">
-            Randomizes the entire official playlist.<br>
-            Bypasses age-blocks and "Unavailable" errors.
-        </div>
+    <div id="player-container">
+        <div id="player"></div>
     </div>
 
+    <button onclick="jumpToRandom()">Jump to Random Video</button>
+
     <script>
-        // FULL VERIFIED ID LIST FROM PLAYLIST: PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-
-        const episodes = [
-            "rM6ICXvS8f8", "z9_T9V_vj_8", "ilnYCCvAqsM", "p88_v_8R9Z0", "W_v_tK_v-vU",
-            "DOUBOgqghjA", "TikoTD5C0nQ", "1jmd8810c_s", "NTVMEBJVte8", "SUgyIEUFuXw",
-            "9NE2DkSBQig", "uExyiKvSf_o", "yS_E3K-pU9k", "2F87-uO-Y_A", "T_8m_O_vJ4Y",
-            "m9_V-v_v-vU", "v-v-v_Vv_1", "k-v_V_v_V_2", "x-v_V_v_V_3", "q-v_V_v_V_4"
-        ];
+        // Load the YouTube IFrame Player API code asynchronously.
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        function goSkitz() {
-            // Pick a random episode from the list
-            const randomId = episodes[Math.floor(Math.random() * episodes.length)];
-            
-            // Generate a random timestamp (between 10 seconds and 3 minutes)
-            const randomTime = Math.floor(Math.random() * 170) + 10;
+        var player;
+        const playlistId = 'PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-';
 
-            /*
-              STRATEGY:
-              - We use the standard 'youtube.com/watch' URL.
-              - We open it in a new window/tab (_blank).
-              - This is the ONLY way to ensure Age-Restricted and 'Embed Disabled'
-                episodes actually play without showing the 'Unavailable' error.
-            */
-            const finalUrl = `https://www.youtube.com/watch?v=${randomId}&t=${randomTime}s`;
-
-            window.open(finalUrl, '_blank');
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '390',
+                width: '640',
+                playerVars: {
+                    'listType': 'playlist',
+                    'list': playlistId,
+                    'autoplay': 1
+                },
+                events: {
+                    'onReady': onPlayerReady
+                }
+            });
         }
-    </script>
-</body>
-</html>            Verified IDs. Opens in a new tab to bypass Age Restrictions and "Unavailable in Embed" errors.
-        </div>
-    </div>
 
-    <script>
-        // STRICTLY VERIFIED IDs FROM THE OFFICIAL PLAYLIST
-        const episodes = [
-            "rM6ICXvS8f8", // S01 E01
-            "z9_T9V_vj_8", // S01 E02
-            "ilnYCCvAqsM", // S01 E03 (Corrected ID)
-            "p88_v_8R9Z0", // S01 E04
-            "W_v_tK_v-vU", // S01 E05
-            "DOUBOgqghjA", // The Devil's Lettuce
-            "TikoTD5C0nQ", // Enlightenment
-            "1jmd8810c_s", // Multiverse Part 4
-            "NTVMEBJVte8", // Night in the Bush
-            "SUgyIEUFuXw", // S04 E01
-            "9NE2DkSBQig", // S04 E02
-            "uExyiKvSf_o", // S04 E03
-            "yS_E3K-pU9k"  // Attack on Choomas
-        ];
+        function onPlayerReady(event) {
+            // Shuffle the playlist immediately so the order is randomized
+            player.setShuffle(true);
+        }
 
-        function goSkitz() {
-            const randomId = episodes[Math.floor(Math.random() * episodes.length)];
-            
-            // Random timestamp (10s to 120s)
-            const randomTime = Math.floor(Math.random() * 110) + 10;
-
-            // Using the official Watch URL to guarantee it works on all devices/accounts
-            const finalUrl = `https://www.youtube.com/watch?v=${randomId}&t=${randomTime}s`;
-
-            window.open(finalUrl, '_blank');
+        function jumpToRandom() {
+            if (player) {
+                // Shuffle again to ensure a new order
+                player.setShuffle(true);
+                // Move to the next video in the shuffled list
+                player.nextVideo();
+            }
         }
     </script>
 </body>
