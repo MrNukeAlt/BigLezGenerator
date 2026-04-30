@@ -14,22 +14,13 @@
         body {
             background-color: var(--dark-bg);
             color: white;
-            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive; /* Fits the MS Paint vibe */
+            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 20px;
         }
-
-        .header {
-            text-align: center;
-            border-bottom: 3px solid var(--lez-green);
-            margin-bottom: 30px;
-        }
-
-        h1 { font-size: 2.5rem; color: var(--lez-green); margin-bottom: 5px; }
-        p.subtitle { color: #888; margin-top: 0; }
 
         .meme-card {
             background: #222;
@@ -40,11 +31,12 @@
             width: 100%;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             text-align: center;
+            margin-top: 20px;
         }
 
         .img-container {
             background: #000;
-            min-height: 300px;
+            height: 400px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -52,30 +44,35 @@
 
         img {
             max-width: 100%;
-            max-height: 500px;
+            max-height: 100%;
             display: block;
         }
 
         .quote-box {
             padding: 20px;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            min-height: 100px;
             background: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         #quote {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             color: var(--sassy-yellow);
             text-shadow: 2px 2px #000;
+            margin: 0;
         }
 
-        .controls {
-            margin-top: 30px;
+        .character-name {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            text-transform: uppercase;
         }
 
         button {
+            margin-top: 30px;
             background-color: var(--lez-green);
             color: white;
             border: none;
@@ -85,42 +82,32 @@
             cursor: pointer;
             border-radius: 50px;
             box-shadow: 0 4px #2e7d32;
-            transition: all 0.2s;
         }
 
         button:active {
-            box-shadow: 0 0 #2e7d32;
             transform: translateY(4px);
+            box-shadow: none;
         }
-
-        button:hover { background-color: #66bb6a; }
-
-        .footer { margin-top: 40px; color: #444; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>THE BIG LEZ GENERATOR</h1>
-        <p class="subtitle">Official Unofficial Portal to Brown Town</p>
-    </div>
+    <h1 style="color: var(--lez-green)">THE BIG LEZ GENERATOR</h1>
 
     <div class="meme-card">
         <div class="img-container">
-            <img id="meme-img" src="https://mrnukealt.github.io/BigLezGenerator/TwoMangos5Dollars.png" alt="Big Lez">
+            <img id="https://mrnukealt.github.io/BigLezGenerator/TwoMangos5Dollars.png" alt="Big Lez">
         </div>
         <div class="quote-box">
-            <p id="quote">Aw yeah... nah, yeah.</p>
+            <p id="quote">Click below to start, ya druggo.</p>
+            <p id="char-name" class="character-name"></p>
         </div>
     </div>
 
-    <div class="controls">
-        <button onclick="getNewMeme()">NEXT CLIP, MATE</button>
-    </div>
-
-    <p class="footer">Don't be a fuckin' druggo. Use responsibly.</p>
+    <button onclick="getNewMeme()">NEXT CLIP, MATE</button>
 
     <script>
+        // Expanded Database with more variety
         const database = [
             {
                 img: "https://mrnukealt.github.io/BigLezGenerator/TwoMangos5Dollars.png",
@@ -148,26 +135,30 @@
             }
         ];
 
+        let history = [];
+
         function getNewMeme() {
-            // Pick a random character/image
-            const charIndex = Math.floor(Math.random() * database.length);
-            const character = database[charIndex];
-            
-            // Pick a random quote from that character
-            const quoteIndex = Math.floor(Math.random() * character.quotes.length);
-            const quote = character.quotes[quoteIndex];
+            // If we've seen almost everything, clear the history so we can start over
+            if (history.length >= pool.length - 1) {
+                history = [];
+            }
 
-            // Update DOM
-            const imgElement = document.getElementById('meme-img');
-            const quoteElement = document.getElementById('quote');
+            let randomIndex;
+            let selected;
 
-            // Add a little "glitch" fade effect
-            imgElement.style.opacity = 0;
-            setTimeout(() => {
-                imgElement.src = character.img;
-                quoteElement.innerText = `"${quote}"`;
-                imgElement.style.opacity = 1;
-            }, 150);
+            // Loop until we find a quote that isn't in our recent history
+            do {
+                randomIndex = Math.floor(Math.random() * pool.length);
+                selected = pool[randomIndex];
+            } while (history.includes(randomIndex));
+
+            // Add the index to history
+            history.push(randomIndex);
+
+            // Update Page
+            document.getElementById('meme-img').src = selected.img;
+            document.getElementById('quote').innerText = `"${selected.quote}"`;
+            document.getElementById('char-name').innerText = `- ${selected.name}`;
         }
     </script>
 </body>
