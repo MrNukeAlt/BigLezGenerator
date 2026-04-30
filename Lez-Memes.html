@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Big Lez Multiverse Generator</title>
+    <style>
+        :root {
+            --lez-green: #4CAF50;
+            --sassy-yellow: #f1c40f;
+            --dark-bg: #121212;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: white;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive; /* Fits the MS Paint vibe */
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px solid var(--lez-green);
+            margin-bottom: 30px;
+        }
+
+        h1 { font-size: 2.5rem; color: var(--lez-green); margin-bottom: 5px; }
+        p.subtitle { color: #888; margin-top: 0; }
+
+        .meme-card {
+            background: #222;
+            border: 4px solid #333;
+            border-radius: 15px;
+            overflow: hidden;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .img-container {
+            background: #000;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        img {
+            max-width: 100%;
+            max-height: 500px;
+            display: block;
+        }
+
+        .quote-box {
+            padding: 20px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1a1a1a;
+        }
+
+        #quote {
+            font-size: 1.5rem;
+            color: var(--sassy-yellow);
+            text-shadow: 2px 2px #000;
+        }
+
+        .controls {
+            margin-top: 30px;
+        }
+
+        button {
+            background-color: var(--lez-green);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 50px;
+            box-shadow: 0 4px #2e7d32;
+            transition: all 0.2s;
+        }
+
+        button:active {
+            box-shadow: 0 0 #2e7d32;
+            transform: translateY(4px);
+        }
+
+        button:hover { background-color: #66bb6a; }
+
+        .footer { margin-top: 40px; color: #444; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>THE BIG LEZ GENERATOR</h1>
+        <p class="subtitle">Official Unofficial Portal to Brown Town</p>
+    </div>
+
+    <div class="meme-card">
+        <div class="img-container">
+            <img id="meme-img" src="https://static.wikia.nocookie.net/the-big-lez-show/images/1/10/Lez.png" alt="Big Lez">
+        </div>
+        <div class="quote-box">
+            <p id="quote">Aw yeah... nah, yeah.</p>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button onclick="getNewMeme()">NEXT CLIP, MATE</button>
+    </div>
+
+    <p class="footer">Don't be a fuckin' druggo. Use responsibly.</p>
+
+    <script>
+        const database = [
+            {
+                img: "https://static.wikia.nocookie.net/the-big-lez-show/images/1/10/Lez.png",
+                quotes: ["Wadiyatalkinabeet?", "Aw, you fuckin' druggo.", "I'm gonna go out there and I'm gonna do it.", "Mmhm... yeah, nah, yeah."]
+            },
+            {
+                img: "https://static.wikia.nocookie.net/the-big-lez-show/images/5/52/Sassy_Sasquatch.png",
+                quotes: ["Whatchu talkin' 'bout?", "Popcoin.", "It’s a Choi-panzee, Lez.", "You ever had a blue meanie, cunt?", "Oooohhhhoooohoooo!"]
+            },
+            {
+                img: "https://static.wikia.nocookie.net/the-big-lez-show/images/9/9b/Donny.png",
+                quotes: ["Scruffy looking cunt, aren't ya?", "Get out of me shop!", "Ten bucks, Lez."]
+            },
+            {
+                img: "https://static.wikia.nocookie.net/the-big-lez-show/images/4/4b/Clarence.png",
+                quotes: ["I'm just a potato with a face.", "Please stop hitting me, Lez.", "I just want to be included!"]
+            },
+            {
+                img: "https://static.wikia.nocookie.net/the-big-lez-show/images/3/30/Mike_Nolan.png",
+                quotes: ["Yeah, nah, just doin' a bit of cash-in-hand.", "Oi Nolan, what are ya doin'?", "Workin' hard or hardly workin'?", "If it's too loud, you're too old."]
+            },
+            {
+                img: "https://static.wikia.nocookie.net/the-big-lez-show/images/1/1a/Warning_Guy.png",
+                quotes: ["WARNING: Don't do drugs. Unless they're good drugs."]
+            }
+        ];
+
+        function getNewMeme() {
+            // Pick a random character/image
+            const charIndex = Math.floor(Math.random() * database.length);
+            const character = database[charIndex];
+            
+            // Pick a random quote from that character
+            const quoteIndex = Math.floor(Math.random() * character.quotes.length);
+            const quote = character.quotes[quoteIndex];
+
+            // Update DOM
+            const imgElement = document.getElementById('meme-img');
+            const quoteElement = document.getElementById('quote');
+
+            // Add a little "glitch" fade effect
+            imgElement.style.opacity = 0;
+            setTimeout(() => {
+                imgElement.src = character.img;
+                quoteElement.innerText = `"${quote}"`;
+                imgElement.style.opacity = 1;
+            }, 150);
+        }
+    </script>
+</body>
+</html>
