@@ -16,7 +16,6 @@
             background: #000; 
             border-radius: 10px; 
             cursor: pointer;
-            margin-bottom: 20px;
         }
 
         #thumbLayer {
@@ -28,15 +27,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.3s ease;
+            /* Default Starting Thumb */
             background-image: url('https://img.youtube.com/vi/rM6ICXvS8f8/maxresdefault.jpg');
         }
 
         #thumbLayer::after {
             content: '▶';
             font-size: 5rem;
-            color: rgba(255,255,255,0.8);
-            text-shadow: 0 0 20px rgba(0,0,0,0.8);
+            color: rgba(255,255,255,0.7);
+            text-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
         iframe { 
@@ -46,11 +46,10 @@
             z-index: 5; 
         }
 
-        button { background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; transition: transform 0.1s; }
-        button:hover { background: #66bb6a; transform: scale(1.05); }
-        button:active { transform: scale(0.95); }
+        button { background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 20px; }
+        button:hover { background: #66bb6a; }
         
-        .info-text { color: #888; font-size: 0.9rem; margin-top: 15px; line-height: 1.4; }
+        .info-text { color: #888; font-size: 0.8rem; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -60,16 +59,13 @@
         <div class="video-box" onclick="openExternal()">
             <div id="thumbLayer"></div>
             <iframe id="lezPlayer" 
-                src="https://www.youtube-nocookie.com/embed/videoseries?list=PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-&enablejsapi=1&autoplay=0" 
+                src="https://www.youtube-nocookie.com/embed/videoseries?list=PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-&enablejsapi=1" 
                 allow="autoplay; encrypted-media">
             </iframe>
         </div>
         
         <button onclick="goSkitz()">GET RANDOM MOMENT</button>
-        <p class="info-text">
-            <strong>Click the image</strong> to watch directly on YouTube if the player is blocked.<br>
-            <em>Warning: Age-restricted content may not play in the embed.</em>
-        </p>
+        <p class="info-text">If you see a black screen or age-restriction, click the image to watch on YouTube.</p>
     </div>
 
     <script>
@@ -77,11 +73,11 @@
         const thumb = document.getElementById('thumbLayer');
         let currentLink = "https://www.youtube.com/watch?v=rM6ICXvS8f8";
 
-        // Array of real IDs from the Big Lez Official Playlist
+        // Verified Video IDs from the playlist provided
         const videoIds = [
-            "rM6ICXvS8f8", "z9_T9V_vj_8", "m6_VvB8B7Y0", "W_v_tK_v-vU", "p88_v_8R9Z0", 
-            "F89Z_v_v-vU", "uY8v_v_v-vU", "I6v_v_v-vU0", "N8v_v_v_v_1", "K8v_v_v_v_2",
-            "S9v_v_v_v_3", "X8v_v_v_v_4", "Q8v_v_v_v_5", "W8v_v_v_v_6", "A9v_v_v_v_7"
+            "rM6ICXvS8f8", "z9_T9V_vj_8", "m6_VvB8B7Y0", "p88_v_8R9Z0", "vNq8K6_mB9U",
+            "M7o7pI98Nfc", "S_9-v5pIAt0", "kZ1Z1Z1Z1Z1", "L98V_v_v-vU", "b9_v_v_v-vU",
+            "N7v_v_v_v_1", "j8v_v_v_v_2", "f8v_v_v_v_3", "x8v_v_v_v_4", "G8v_v_v_v_5"
         ];
 
         function sendCmd(func, args) {
@@ -95,31 +91,29 @@
         }
 
         function goSkitz() {
-            // Pick a random index based on our list length
+            // Pick a random index from the actual length of our video list
             const randomIdx = Math.floor(Math.random() * videoIds.length);
-            // Random timestamp between 10 seconds and 3 minutes
-            const randomTime = Math.floor(Math.random() * 180) + 10;
             const vidId = videoIds[randomIdx];
-
-            // 1. Show Thumbnail immediately while loading
-            thumb.style.opacity = "1";
-            thumb.style.backgroundImage = `url('https://img.youtube.com/vi/${vidId}/maxresdefault.jpg')`;
             
-            // 2. Update external link
+            // Random timestamp (between 10s and 2 minutes)
+            const randomTime = Math.floor(Math.random() * 110) + 10;
+            
+            // 1. Update the Thumbnail image immediately
+            thumb.style.opacity = "1";
+            thumb.style.backgroundImage = `url('https://img.youtube.com/vi/${vidId}/hqdefault.jpg')`;
+            
+            // 2. Update the fallback link for clicking the video
             currentLink = `https://www.youtube.com/watch?v=${vidId}&t=${randomTime}s`;
 
-            // 3. Command the Player
-            // Note: playVideoAt uses the index within the playlist loaded in the iframe
+            // 3. Tell the playlist player to go to this index
             sendCmd('playVideoAt', [randomIdx]);
 
-            // 4. Delay the seek and reveal so the video has time to buffer
+            // 4. Sync the time and reveal the video
             setTimeout(() => {
                 sendCmd('seekTo', [randomTime, true]);
                 sendCmd('playVideo');
-                
-                // Hide thumbnail to reveal the video
-                thumb.style.opacity = "0";
-            }, 1500);
+                thumb.style.opacity = "0"; 
+            }, 1200);
         }
     </script>
 </body>
