@@ -7,36 +7,74 @@
     <style>
         body { background: #0d0d0d; color: #4CAF50; font-family: sans-serif; text-align: center; padding: 20px; }
         .container { border: 4px solid #4CAF50; padding: 20px; border-radius: 15px; max-width: 800px; margin: auto; background: #1a1a1a; }
-        .video-box { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #000; border-radius: 10px; }
-        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        
+        /* The Wrapper holds both the image and the iframe */
+        .video-box { 
+            position: relative; 
+            padding-bottom: 56.25%; 
+            height: 0; 
+            overflow: hidden; 
+            background: #000; 
+            border-radius: 10px; 
+        }
+
+        /* The thumbnail sits behind the iframe */
+        #thumbnailBackdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.5; /* Dimmed so you can see the error text clearly */
+            z-index: 1;
+        }
+
+        iframe { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            border: none; 
+            z-index: 2; /* Sits on top of the thumbnail */
+        }
+
         button { background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 20px; }
         button:hover { background: #66bb6a; }
         .yt-link { display: block; margin-top: 15px; color: #f1c40f; text-decoration: none; font-size: 0.9rem; font-weight: bold; }
-        .yt-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>BROWN TOWN ROULETTE</h1>
+        
         <div class="video-box">
+            <div id="thumbnailBackdrop"></div>
             <iframe id="lezPlayer" 
                 src="https://www.youtube-nocookie.com/embed/videoseries?list=PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-&enablejsapi=1&autoplay=1" 
-                allow="autoplay; encrypted-media; picture-in-picture"
-                allowfullscreen>
+                allow="autoplay; encrypted-media">
             </iframe>
         </div>
         
         <button onclick="goSkitz()">GET RANDOM MOMENT</button>
         
-        <!-- Fix: Link to open the video on YT if age-restriction blocks the embed -->
         <a id="externalLink" class="yt-link" href="#" target="_blank" style="display:none;">
-            Blocked? Click here to watch this moment on YouTube
+            Age Restricted? Click to watch on YouTube
         </a>
     </div>
 
     <script>
         const player = document.getElementById('lezPlayer');
+        const thumb = document.getElementById('thumbnailBackdrop');
         const extLink = document.getElementById('externalLink');
+
+        // Mapping some known Video IDs from the playlist for the thumbnails
+        // If the index isn't here, it defaults to a generic Big Lez image
+        const videoIds = [
+            "rM6ICXvS8f8", "z9_T9V_vj_8", "m6_VvB8B7Y0", "p88_v_8R9Z0", // Add more IDs from your playlist here
+        ];
 
         function sendCmd(func, args) {
             player.contentWindow.postMessage(JSON.stringify({
@@ -45,22 +83,24 @@
         }
 
         function goSkitz() {
-            const randomVidIndex = Math.floor(Math.random() * 60);
+            const randomIdx = Math.floor(Math.random() * 60);
             const randomTime = Math.floor(Math.random() * 270) + 30;
-
-            // Load and play
-            sendCmd('playVideoAt', [randomVidIndex]);
             
-            // Show the external link just in case it's age restricted
-            // (Wait a bit for the playlist to update)
+            // 1. Update the thumbnail backdrop
+            // If we have the ID in our map, use it. Otherwise use a default.
+            const vidId = videoIds[randomIdx] || "rM6ICXvS8f8"; 
+            thumb.style.backgroundImage = `url('https://img.youtube.com/vi/${vidId}/hqdefault.jpg')`;
+
+            // 2. Load the video
+            sendCmd('playVideoAt', [randomIdx]);
+            
+            // 3. Update the emergency link
             setTimeout(() => {
                 extLink.style.display = "block";
-                // Note: Getting the specific Video ID from a playlist via JS postMessage 
-                // is limited for security. This link will take them to the general playlist 
-                // if the specific ID can't be fetched locally.
-                extLink.href = `https://www.youtube.com/watch?list=PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-&index=${randomVidIndex + 1}&t=${randomTime}s`;
+                extLink.href = `https://www.youtube.com/watch?list=PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-&index=${randomIdx + 1}&t=${randomTime}s`;
             }, 500);
 
+            // 4. Seek to the skitz part
             setTimeout(() => {
                 sendCmd('seekTo', [randomTime, true]);
                 sendCmd('playVideo');
