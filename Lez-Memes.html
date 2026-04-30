@@ -3,98 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bypass Playlist Jumper</title>
+    <title>Piped Random Player</title>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #0f0f0f; color: white; margin: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0b0b0b; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         #container { width: 90%; max-width: 800px; text-align: center; }
-        #player-wrapper { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 12px; background: #000; overflow: hidden; }
-        #player-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        button { margin-top: 20px; padding: 15px 30px; font-size: 18px; cursor: pointer; background: #ff0000; color: white; border: none; border-radius: 50px; font-weight: bold; }
-        #status { margin-top: 15px; color: #888; font-size: 13px; }
-        #debug { font-family: monospace; font-size: 10px; color: #444; margin-top: 5px; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 15px; overflow: hidden; background: #000; box-shadow: 0 0 20px rgba(0,255,150,0.2); }
+        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        button { margin-top: 20px; padding: 15px 35px; font-size: 18px; cursor: pointer; background: #00ffa3; color: #000; border: none; border-radius: 50px; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #00d186; transform: scale(1.05); }
+        #status { margin-top: 15px; color: #00ffa3; font-family: monospace; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div id="container">
-    <div id="player-wrapper">
-        <iframe id="video-player" src="" allowfullscreen></iframe>
+    <div class="video-container">
+        <iframe id="main-player" src="" allow="autoplay; fullscreen"></iframe>
     </div>
-    <button onclick="getRandomVideo()">Shuffle Random Video</button>
-    <p id="status">Initializing...</p>
-    <div id="debug"></div>
+    <button onclick="shuffleVideo()">Shuffle Next Video</button>
+    <div id="status">Waking up Piped...</div>
 </div>
 
 <script>
     const playlistId = 'PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-';
-    
-    // List of reliable 2026 instances to try if one is down
-    const instances = [
-        'https://yewtu.be',
-        'https://inv.tux.rs',
-        'https://invidious.nerdvpn.de',
-        'https://inv.nadeko.net'
-    ];
-    
-    let currentInstanceIndex = 0;
+    // Using Piped's official API
+    const pipedApi = `https://pipedapi.kavin.rocks/playlists/${playlistId}`;
     let videoIds = [];
 
-    function log(msg) {
-        document.getElementById('debug').innerText += `> ${msg}\n`;
-        console.log(msg);
+    async function loadPlaylist() {
+        const status = document.getElementById('status');
+        try {
+            // Piped API usually handles CORS better than Invidious
+            const response = await fetch(pipedApi);
+            if (!response.ok) throw new Error('Piped API refused to talk.');
+            
+            const data = await response.json();
+            // Piped returns 'relatedStreams' for playlists
+            videoIds = data.relatedStreams.map(v => v.url.split('v=')[1]);
+            
+            status.innerText = `[SUCCESS] Loaded ${videoIds.length} videos from Piped.`;
+            shuffleVideo();
+        } catch (err) {
+            console.error(err);
+            status.innerText = "[ERROR] Piped blocked. Trying AllOrigins Proxy...";
+            loadWithProxy();
+        }
     }
 
-    async function fetchPlaylist() {
-        const instance = instances[currentInstanceIndex];
-        const statusEl = document.getElementById('status');
-        statusEl.innerText = `Connecting to ${instance.replace('https://','')}...`;
-        
-        // Using a different proxy as backup (AllOrigins)
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(instance + '/api/v1/playlists/' + playlistId)}&timestamp=${Date.now()}`;
-
+    async function loadWithProxy() {
+        const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(pipedApi)}`;
         try {
-            log(`Trying instance: ${instance}`);
-            const response = await fetch(proxyUrl);
-            if (!response.ok) throw new Error('Proxy unreachable');
-            
+            const response = await fetch(proxy);
             const wrapper = await response.json();
             const data = JSON.parse(wrapper.contents);
             
-            if (data && data.videos) {
-                videoIds = data.videos.map(v => v.videoId);
-                statusEl.innerText = `Ready! Loaded ${videoIds.length} videos.`;
-                log(`Success! Found ${videoIds.length} videos.`);
-                getRandomVideo();
-            } else {
-                throw new Error('Invalid data format');
-            }
+            videoIds = data.relatedStreams.map(v => v.url.split('v=')[1]);
+            document.getElementById('status').innerText = `[PROXY SUCCESS] Loaded ${videoIds.length} videos.`;
+            shuffleVideo();
         } catch (err) {
-            log(`Failed: ${err.message}`);
-            currentInstanceIndex++;
-            if (currentInstanceIndex < instances.length) {
-                fetchPlaylist(); // Try next instance
-            } else {
-                statusEl.innerText = "All instances failed. YouTube might be blocking proxies.";
-                currentInstanceIndex = 0; // Reset for manual retry
-            }
+            document.getElementById('status').innerText = "[FATAL] All providers blocked. YouTube API is fighting back.";
         }
     }
 
-    function getRandomVideo() {
-        if (videoIds.length === 0) {
-            fetchPlaylist();
-            return;
-        }
-
-        const selectedId = videoIds[Math.floor(Math.random() * videoIds.length)];
-        const player = document.getElementById('video-player');
+    function shuffleVideo() {
+        if (videoIds.length === 0) return;
         
-        // Use the current working instance for the embed
-        player.src = `${instances[currentInstanceIndex]}/embed/${selectedId}?autoplay=1`;
-        document.getElementById('status').innerText = "Playing random selection.";
+        const id = videoIds[Math.floor(Math.random() * videoIds.length)];
+        const player = document.getElementById('main-player');
+        
+        // Load through Piped's embed (very good at bypassing restrictions)
+        player.src = `https://piped.kavin.rocks/embed/${id}?autoplay=1`;
     }
 
-    fetchPlaylist();
+    loadPlaylist();
 </script>
+
 </body>
 </html>
