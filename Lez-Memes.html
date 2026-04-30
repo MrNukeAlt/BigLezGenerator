@@ -2,69 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Helps YouTube authorize the embed even on local files -->
-    <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Big Lez Roulette - Skitz Edition</title>
     <style>
         body { background: #0d0d0d; color: #4CAF50; font-family: sans-serif; text-align: center; padding: 20px; }
         .container { border: 4px solid #4CAF50; padding: 20px; border-radius: 15px; max-width: 800px; margin: auto; background: #1a1a1a; }
         .video-box { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #000; border-radius: 10px; }
         iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        button { background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 20px; box-shadow: 0 4px #2e6631; }
-        button:active { transform: translateY(2px); box-shadow: 0 2px #2e6631; }
+        button { background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 20px; }
         button:hover { background: #66bb6a; }
-        .warning { color: #f1c40f; font-size: 0.8rem; margin-top: 10px; }
+        .yt-link { display: block; margin-top: 15px; color: #f1c40f; text-decoration: none; font-size: 0.9rem; font-weight: bold; }
+        .yt-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>BROWN TOWN ROULETTE</h1>
         <div class="video-box">
-            <!-- Used youtube-nocookie to prevent the 'json-prune' adblock errors -->
             <iframe id="lezPlayer" 
-                src="https://www.youtube-nocookie.com/embed/videoseries?list=PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-&enablejsapi=1&autoplay=1&mute=0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                src="https://www.youtube-nocookie.com/embed/videoseries?list=PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-&enablejsapi=1&autoplay=1" 
+                allow="autoplay; encrypted-media; picture-in-picture"
                 allowfullscreen>
             </iframe>
         </div>
+        
         <button onclick="goSkitz()">GET RANDOM MOMENT</button>
-        <p class="warning">If the button doesn't work, ensure you're allowing the page to load "scripts" or disable Adblock360.</p>
+        
+        <!-- Fix: Link to open the video on YT if age-restriction blocks the embed -->
+        <a id="externalLink" class="yt-link" href="#" target="_blank" style="display:none;">
+            Blocked? Click here to watch this moment on YouTube
+        </a>
     </div>
 
     <script>
         const player = document.getElementById('lezPlayer');
+        const extLink = document.getElementById('externalLink');
 
         function sendCmd(func, args) {
-            try {
-                if (player && player.contentWindow) {
-                    // Sending command to YouTube API
-                    player.contentWindow.postMessage(JSON.stringify({
-                        event: 'command',
-                        func: func,
-                        args: args || []
-                    }), '*'); 
-                }
-            } catch (e) {
-                console.error("Adblock or Security blocked the command: ", e);
-            }
+            player.contentWindow.postMessage(JSON.stringify({
+                event: 'command', func: func, args: args || []
+            }), '*');
         }
 
         function goSkitz() {
-            // Pick a random video (index 0-60)
-            const randomVid = Math.floor(Math.random() * 60);
-            // Pick a random timestamp (between 30s and 300s)
+            const randomVidIndex = Math.floor(Math.random() * 60);
             const randomTime = Math.floor(Math.random() * 270) + 30;
 
-            console.log(`Going Skitz: Video ${randomVid} at ${randomTime}s`);
-
-            // 1. Jump to the random video in the playlist
-            sendCmd('playVideoAt', [randomVid]);
+            // Load and play
+            sendCmd('playVideoAt', [randomVidIndex]);
             
-            // 2. Wait for the player to load the new video, then seek
+            // Show the external link just in case it's age restricted
+            // (Wait a bit for the playlist to update)
+            setTimeout(() => {
+                extLink.style.display = "block";
+                // Note: Getting the specific Video ID from a playlist via JS postMessage 
+                // is limited for security. This link will take them to the general playlist 
+                // if the specific ID can't be fetched locally.
+                extLink.href = `https://www.youtube.com/watch?list=PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-&index=${randomVidIndex + 1}&t=${randomTime}s`;
+            }, 500);
+
             setTimeout(() => {
                 sendCmd('seekTo', [randomTime, true]);
                 sendCmd('playVideo');
-            }, 1800); // Slightly longer delay to help local 'file://' connections
+            }, 1800);
         }
     </script>
 </body>
