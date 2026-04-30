@@ -2,118 +2,92 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Big Lez Roulette - Skitz Edition</title>
     <style>
-        body { background: #0d0d0d; color: #4CAF50; font-family: sans-serif; text-align: center; padding: 20px; }
-        .container { border: 4px solid #4CAF50; padding: 20px; border-radius: 15px; max-width: 800px; margin: auto; background: #1a1a1a; }
+        body { background: #0d0d0d; color: #4CAF50; font-family: 'Courier New', Courier, monospace; text-align: center; padding: 20px; overflow-x: hidden; }
+        .container { max-width: 900px; margin: auto; }
         
-        .video-box { 
-            position: relative; 
-            padding-bottom: 56.25%; 
-            height: 0; 
-            overflow: hidden; 
+        h1 { font-size: 3rem; text-shadow: 3px 3px #2e6631; letter-spacing: 2px; margin-bottom: 30px; }
+
+        /* The dynamic player container */
+        #videoTarget { 
+            width: 100%; 
+            aspect-ratio: 16/9; 
             background: #000; 
-            border-radius: 10px; 
-            cursor: pointer;
+            border: 4px solid #4CAF50; 
+            border-radius: 15px; 
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+            display: none; /* Hidden until first click */
+            margin-bottom: 30px;
         }
 
-        #thumbLayer {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-size: cover;
-            background-position: center;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-image: url('https://img.youtube.com/vi/rM6ICXvS8f8/hqdefault.jpg');
-        }
+        iframe { width: 100%; height: 100%; border: none; border-radius: 10px; }
 
-        #thumbLayer::after {
-            content: '▶';
-            font-size: 5rem;
-            color: rgba(255,255,255,0.7);
-            text-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        iframe { 
-            position: absolute; 
-            top: 0; left: 0; width: 100%; height: 100%; 
+        .btn-skitz { 
+            background: #4CAF50; 
+            color: white; 
             border: none; 
-            z-index: 5; 
+            padding: 20px 40px; 
+            font-size: 1.5rem; 
+            font-weight: bold; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            transition: all 0.2s ease;
+            box-shadow: 0 6px #2e6631;
+            text-transform: uppercase;
         }
+        .btn-skitz:hover { background: #66bb6a; transform: scale(1.05); }
+        .btn-skitz:active { box-shadow: 0 2px #2e6631; transform: translateY(4px); }
 
-        button { background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 20px; box-shadow: 0 4px #2e6631; }
-        button:active { box-shadow: 0 2px #2e6631; transform: translateY(2px); }
-        
-        .info-text { color: #888; font-size: 0.8rem; margin-top: 10px; }
+        .motto { color: #888; margin-top: 20px; font-style: italic; font-size: 1.1rem; }
     </style>
 </head>
 <body>
+
     <div class="container">
         <h1>BROWN TOWN ROULETTE</h1>
+
+        <!-- Where the video appears -->
+        <div id="videoTarget"></div>
+
+        <button class="btn-skitz" onclick="goSkitz()">Get Random Moment</button>
         
-        <div class="video-box" onclick="openExternal()">
-            <!-- The Episode Image -->
-            <div id="thumbLayer"></div>
-            
-            <!-- The Player -->
-            <iframe id="lezPlayer" 
-                src="https://www.youtube-nocookie.com/embed/rM6ICXvS8f8?autoplay=0&rel=0" 
-                allow="autoplay; encrypted-media">
-            </iframe>
-        </div>
-        
-        <button onclick="goSkitz()">GET RANDOM MOMENT</button>
-        <p class="info-text">If the video is blocked or age-restricted, click the image to watch on YouTube.</p>
+        <p class="motto">"What are you talkin' about?"</p>
     </div>
 
     <script>
-        const player = document.getElementById('lezPlayer');
-        const thumb = document.getElementById('thumbLayer');
-        let currentLink = "https://www.youtube.com/watch?v=rM6ICXvS8f8";
-
-        // List of REAL Video IDs from the Big Lez Playlist
-        const videoIds = [
-            "rM6ICXvS8f8", // Ep 1
-            "z9_T9V_vj_8", // Ep 2
-            "m6_VvB8B7Y0", // Ep 3
-            "p88_v_8R9Z0", // Ep 4
-            "3_v_tK_v-vU", // etc...
-            "DOUBOgqghjA",
-            "TikoTD5C0nQ",
-            "1jmd8810c_s",
-            "NTVMEBJVte8"
+        // Full list of IDs from the Big Lez Saga playlist
+        const episodes = [
+            "rM6ICXvS8f8", "z9_T9V_vj_8", "m6_VvB8B7Y0", "p88_v_8R9Z0", "3_v_tK_v-vU", 
+            "DOUBOgqghjA", "TikoTD5C0nQ", "1jmd8810c_s", "NTVMEBJVte8", "SUgyIEUFuXw",
+            "9NE2DkSBQig", "uExyiKvSf_o", "yS_E3K-pU9k", "W_v_tK_v-vU", "F89Z_v_v-vU"
         ];
 
-        function openExternal() {
-            window.open(currentLink, '_blank');
-        }
-
         function goSkitz() {
-            // 1. Pick a random video
-            const randomIdx = Math.floor(Math.random() * videoIds.length);
-            const vidId = videoIds[randomIdx];
+            const target = document.getElementById('videoTarget');
             
-            // 2. Pick a random time (between 5 and 60 seconds for a quick clip)
-            const randomTime = Math.floor(Math.random() * 55) + 5;
+            // 1. Pick random episode
+            const randomId = episodes[Math.floor(Math.random() * episodes.length)];
             
-            // 3. Update the Thumbnail immediately
-            thumb.style.display = "flex"; // Show it while loading
-            thumb.style.backgroundImage = `url('https://img.youtube.com/vi/${vidId}/hqdefault.jpg')`;
-            
-            // 4. Update the "Open in YouTube" link
-            currentLink = `https://www.youtube.com/watch?v=${vidId}&t=${randomTime}s`;
+            // 2. Pick a "best moment" timestamp (between 15s and 120s)
+            const randomTime = Math.floor(Math.random() * 105) + 15;
 
-            // 5. Hard-refresh the iframe to the new video at the new time
-            // This is way more reliable than using the Playlist API
-            player.src = `https://www.youtube-nocookie.com/embed/${vidId}?autoplay=1&start=${randomTime}`;
+            // 3. Make target visible
+            target.style.display = "block";
 
-            // 6. Hide the thumb after a short delay so the video can load behind it
-            setTimeout(() => {
-                thumb.style.display = "none";
-            }, 1000);
+            // 4. Inject the fresh player directly
+            // Using youtube-nocookie and the 'start' parameter for reliability
+            target.innerHTML = `
+                <iframe 
+                    src="https://www.youtube-nocookie.com/embed/${randomId}?autoplay=1&start=${randomTime}&rel=0" 
+                    allow="autoplay; encrypted-media; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            `;
+
+            // Scroll to video for mobile users
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     </script>
 </body>
