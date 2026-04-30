@@ -2,163 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Big Lez Multiverse Generator</title>
+    <!-- Helps YouTube authorize the embed even on local files -->
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <title>Big Lez Roulette - Skitz Edition</title>
     <style>
-        :root {
-            --lez-green: #4CAF50;
-            --sassy-yellow: #f1c40f;
-            --dark-bg: #121212;
-        }
-
-        body {
-            background-color: var(--dark-bg);
-            color: white;
-            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .meme-card {
-            background: #222;
-            border: 4px solid #333;
-            border-radius: 15px;
-            overflow: hidden;
-            max-width: 600px;
-            width: 100%;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .img-container {
-            background: #000;
-            height: 400px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        img {
-            max-width: 100%;
-            max-height: 100%;
-            display: block;
-        }
-
-        .quote-box {
-            padding: 20px;
-            min-height: 100px;
-            background: #1a1a1a;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        #quote {
-            font-size: 1.6rem;
-            color: var(--sassy-yellow);
-            text-shadow: 2px 2px #000;
-            margin: 0;
-        }
-
-        .character-name {
-            color: #888;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            text-transform: uppercase;
-        }
-
-        button {
-            margin-top: 30px;
-            background-color: var(--lez-green);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 50px;
-            box-shadow: 0 4px #2e7d32;
-        }
-
-        button:active {
-            transform: translateY(4px);
-            box-shadow: none;
-        }
+        body { background: #0d0d0d; color: #4CAF50; font-family: sans-serif; text-align: center; padding: 20px; }
+        .container { border: 4px solid #4CAF50; padding: 20px; border-radius: 15px; max-width: 800px; margin: auto; background: #1a1a1a; }
+        .video-box { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #000; border-radius: 10px; }
+        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        button { background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 20px; box-shadow: 0 4px #2e6631; }
+        button:active { transform: translateY(2px); box-shadow: 0 2px #2e6631; }
+        button:hover { background: #66bb6a; }
+        .warning { color: #f1c40f; font-size: 0.8rem; margin-top: 10px; }
     </style>
 </head>
 <body>
-
-    <h1 style="color: var(--lez-green)">THE BIG LEZ GENERATOR</h1>
-
-    <div class="meme-card">
-        <div class="img-container">
-            <img id="https://mrnukealt.github.io/BigLezGenerator/TwoMangos5Dollars.png" alt="Big Lez">
+    <div class="container">
+        <h1>BROWN TOWN ROULETTE</h1>
+        <div class="video-box">
+            <!-- Used youtube-nocookie to prevent the 'json-prune' adblock errors -->
+            <iframe id="lezPlayer" 
+                src="https://www.youtube-nocookie.com/embed/videoseries?list=PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-&enablejsapi=1&autoplay=1&mute=0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen>
+            </iframe>
         </div>
-        <div class="quote-box">
-            <p id="quote">Click below to start, ya druggo.</p>
-            <p id="char-name" class="character-name"></p>
-        </div>
+        <button onclick="goSkitz()">GET RANDOM MOMENT</button>
+        <p class="warning">If the button doesn't work, ensure you're allowing the page to load "scripts" or disable Adblock360.</p>
     </div>
 
-    <button onclick="getNewMeme()">NEXT CLIP, MATE</button>
-
     <script>
-        // Expanded Database with more variety
-        const database = [
-            {
-                img: "https://mrnukealt.github.io/BigLezGenerator/TwoMangos5Dollars.png",
-                quotes: ["You ever had a blue meanie, cunt?", "I'm gonna go out there and I'm gonna do it.", "Mmhm... yeah, nah, yeah."]
-            },
-            {
-                img: "https://mrnukealt.github.io/BigLezGenerator/Sassy.png",
-                quotes: ["Wadiyatalkinabeet?", "Aw, you fuckin' druggo.", "Its Popcoin.", "Clarance Ya potato head"]
-            },
-            {
-                img: "https://mrnukealt.github.io/BigLezGenerator/Donny.png",
-                quotes: ["Scruffy looking cunt, aren't ya?", "Get out of me shop!", "Fiddy Bucks."]
-            },
-            {
-                img: "https://mrnukealt.github.io/BigLezGenerator/Clarance.png",
-                quotes: ["Three Mandarins! Oooohhhhoooohoooo!", "I'm just a potato with a face.", "Please stop hitting me, Lez.", "I just want to be included!"]
-            },
-            {
-                img: "https://mrnukealt.github.io/BigLezGenerator/Nolan.png",
-                quotes: ["Yeah, nah, just doin' a bit of cash-in-hand.", "Oi Nolan, what are ya doin'?", "Workin' hard or hardly workin'?", "If it's too loud, you're too old."]
-            },
-            {
-                img: "https://mrnukealt.github.io/BigLezGenerator/WarningGuy.png",
-                quotes: ["WARNING: Don't do drugs. Unless they're good drugs."]
+        const player = document.getElementById('lezPlayer');
+
+        function sendCmd(func, args) {
+            try {
+                if (player && player.contentWindow) {
+                    // Sending command to YouTube API
+                    player.contentWindow.postMessage(JSON.stringify({
+                        event: 'command',
+                        func: func,
+                        args: args || []
+                    }), '*'); 
+                }
+            } catch (e) {
+                console.error("Adblock or Security blocked the command: ", e);
             }
-        ];
+        }
 
-        let history = [];
+        function goSkitz() {
+            // Pick a random video (index 0-60)
+            const randomVid = Math.floor(Math.random() * 60);
+            // Pick a random timestamp (between 30s and 300s)
+            const randomTime = Math.floor(Math.random() * 270) + 30;
 
-        function getNewMeme() {
-            // If we've seen almost everything, clear the history so we can start over
-            if (history.length >= pool.length - 1) {
-                history = [];
-            }
+            console.log(`Going Skitz: Video ${randomVid} at ${randomTime}s`);
 
-            let randomIndex;
-            let selected;
-
-            // Loop until we find a quote that isn't in our recent history
-            do {
-                randomIndex = Math.floor(Math.random() * pool.length);
-                selected = pool[randomIndex];
-            } while (history.includes(randomIndex));
-
-            // Add the index to history
-            history.push(randomIndex);
-
-            // Update Page
-            document.getElementById('meme-img').src = selected.img;
-            document.getElementById('quote').innerText = `"${selected.quote}"`;
-            document.getElementById('char-name').innerText = `- ${selected.name}`;
+            // 1. Jump to the random video in the playlist
+            sendCmd('playVideoAt', [randomVid]);
+            
+            // 2. Wait for the player to load the new video, then seek
+            setTimeout(() => {
+                sendCmd('seekTo', [randomTime, true]);
+                sendCmd('playVideo');
+            }, 1800); // Slightly longer delay to help local 'file://' connections
         }
     </script>
 </body>
