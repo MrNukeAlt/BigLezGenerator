@@ -27,9 +27,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.3s ease;
-            /* Default Starting Thumb */
-            background-image: url('https://img.youtube.com/vi/rM6ICXvS8f8/maxresdefault.jpg');
+            background-image: url('https://img.youtube.com/vi/rM6ICXvS8f8/hqdefault.jpg');
         }
 
         #thumbLayer::after {
@@ -46,8 +44,8 @@
             z-index: 5; 
         }
 
-        button { background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 20px; }
-        button:hover { background: #66bb6a; }
+        button { background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 20px; box-shadow: 0 4px #2e6631; }
+        button:active { box-shadow: 0 2px #2e6631; transform: translateY(2px); }
         
         .info-text { color: #888; font-size: 0.8rem; margin-top: 10px; }
     </style>
@@ -57,15 +55,18 @@
         <h1>BROWN TOWN ROULETTE</h1>
         
         <div class="video-box" onclick="openExternal()">
+            <!-- The Episode Image -->
             <div id="thumbLayer"></div>
+            
+            <!-- The Player -->
             <iframe id="lezPlayer" 
-                src="https://www.youtube-nocookie.com/embed/videoseries?list=PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-&enablejsapi=1" 
+                src="https://www.youtube-nocookie.com/embed/rM6ICXvS8f8?autoplay=0&rel=0" 
                 allow="autoplay; encrypted-media">
             </iframe>
         </div>
         
         <button onclick="goSkitz()">GET RANDOM MOMENT</button>
-        <p class="info-text">If you see a black screen or age-restriction, click the image to watch on YouTube.</p>
+        <p class="info-text">If the video is blocked or age-restricted, click the image to watch on YouTube.</p>
     </div>
 
     <script>
@@ -73,47 +74,46 @@
         const thumb = document.getElementById('thumbLayer');
         let currentLink = "https://www.youtube.com/watch?v=rM6ICXvS8f8";
 
-        // Verified Video IDs from the playlist provided
+        // List of REAL Video IDs from the Big Lez Playlist
         const videoIds = [
-            "rM6ICXvS8f8", "z9_T9V_vj_8", "m6_VvB8B7Y0", "p88_v_8R9Z0", "vNq8K6_mB9U",
-            "M7o7pI98Nfc", "S_9-v5pIAt0", "kZ1Z1Z1Z1Z1", "L98V_v_v-vU", "b9_v_v_v-vU",
-            "N7v_v_v_v_1", "j8v_v_v_v_2", "f8v_v_v_v_3", "x8v_v_v_v_4", "G8v_v_v_v_5"
+            "rM6ICXvS8f8", // Ep 1
+            "z9_T9V_vj_8", // Ep 2
+            "m6_VvB8B7Y0", // Ep 3
+            "p88_v_8R9Z0", // Ep 4
+            "3_v_tK_v-vU", // etc...
+            "DOUBOgqghjA",
+            "TikoTD5C0nQ",
+            "1jmd8810c_s",
+            "NTVMEBJVte8"
         ];
-
-        function sendCmd(func, args) {
-            player.contentWindow.postMessage(JSON.stringify({
-                event: 'command', func: func, args: args || []
-            }), '*');
-        }
 
         function openExternal() {
             window.open(currentLink, '_blank');
         }
 
         function goSkitz() {
-            // Pick a random index from the actual length of our video list
+            // 1. Pick a random video
             const randomIdx = Math.floor(Math.random() * videoIds.length);
             const vidId = videoIds[randomIdx];
             
-            // Random timestamp (between 10s and 2 minutes)
-            const randomTime = Math.floor(Math.random() * 110) + 10;
+            // 2. Pick a random time (between 5 and 60 seconds for a quick clip)
+            const randomTime = Math.floor(Math.random() * 55) + 5;
             
-            // 1. Update the Thumbnail image immediately
-            thumb.style.opacity = "1";
+            // 3. Update the Thumbnail immediately
+            thumb.style.display = "flex"; // Show it while loading
             thumb.style.backgroundImage = `url('https://img.youtube.com/vi/${vidId}/hqdefault.jpg')`;
             
-            // 2. Update the fallback link for clicking the video
+            // 4. Update the "Open in YouTube" link
             currentLink = `https://www.youtube.com/watch?v=${vidId}&t=${randomTime}s`;
 
-            // 3. Tell the playlist player to go to this index
-            sendCmd('playVideoAt', [randomIdx]);
+            // 5. Hard-refresh the iframe to the new video at the new time
+            // This is way more reliable than using the Playlist API
+            player.src = `https://www.youtube-nocookie.com/embed/${vidId}?autoplay=1&start=${randomTime}`;
 
-            // 4. Sync the time and reveal the video
+            // 6. Hide the thumb after a short delay so the video can load behind it
             setTimeout(() => {
-                sendCmd('seekTo', [randomTime, true]);
-                sendCmd('playVideo');
-                thumb.style.opacity = "0"; 
-            }, 1200);
+                thumb.style.display = "none";
+            }, 1000);
         }
     </script>
 </body>
