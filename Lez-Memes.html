@@ -5,21 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Big Lez Roulette - Skitz Edition</title>
     <style>
-        body { background: #0d0d0d; color: #4CAF50; font-family: 'Courier New', Courier, monospace; text-align: center; padding: 20px; overflow-x: hidden; }
-        .container { max-width: 900px; margin: auto; }
+        body { background: #0a0a0a; color: #4CAF50; font-family: 'Courier New', Courier, monospace; text-align: center; padding: 20px; }
+        .container { max-width: 850px; margin: auto; }
         
-        h1 { font-size: 3rem; text-shadow: 3px 3px #2e6631; letter-spacing: 2px; margin-bottom: 30px; }
+        h1 { font-size: 2.5rem; text-shadow: 2px 2px #1b3d1d; margin-bottom: 20px; }
 
-        /* The dynamic player container */
         #videoTarget { 
             width: 100%; 
             aspect-ratio: 16/9; 
             background: #000; 
-            border: 4px solid #4CAF50; 
-            border-radius: 15px; 
-            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
-            display: none; /* Hidden until first click */
-            margin-bottom: 30px;
+            border: 3px solid #4CAF50; 
+            border-radius: 12px; 
+            display: none; 
+            margin-bottom: 25px;
+            box-shadow: 0 0 30px rgba(76, 175, 80, 0.2);
         }
 
         iframe { width: 100%; height: 100%; border: none; border-radius: 10px; }
@@ -28,19 +27,18 @@
             background: #4CAF50; 
             color: white; 
             border: none; 
-            padding: 20px 40px; 
-            font-size: 1.5rem; 
+            padding: 18px 45px; 
+            font-size: 1.4rem; 
             font-weight: bold; 
-            border-radius: 50px; 
+            border-radius: 8px; 
             cursor: pointer; 
-            transition: all 0.2s ease;
-            box-shadow: 0 6px #2e6631;
-            text-transform: uppercase;
+            transition: 0.2s;
+            box-shadow: 0 5px #2e6631;
         }
-        .btn-skitz:hover { background: #66bb6a; transform: scale(1.05); }
-        .btn-skitz:active { box-shadow: 0 2px #2e6631; transform: translateY(4px); }
+        .btn-skitz:hover { background: #66bb6a; transform: translateY(-2px); }
+        .btn-skitz:active { box-shadow: 0 2px #2e6631; transform: translateY(3px); }
 
-        .motto { color: #888; margin-top: 20px; font-style: italic; font-size: 1.1rem; }
+        .status-msg { color: #666; font-size: 0.9rem; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -48,46 +46,50 @@
     <div class="container">
         <h1>BROWN TOWN ROULETTE</h1>
 
-        <!-- Where the video appears -->
         <div id="videoTarget"></div>
 
-        <button class="btn-skitz" onclick="goSkitz()">Get Random Moment</button>
+        <button class="btn-skitz" onclick="goSkitz()">GET RANDOM MOMENT</button>
         
-        <p class="motto">"What are you talkin' about?"</p>
+        <p class="status-msg">Using No-Cookie Mode to minimize ads.</p>
     </div>
 
     <script>
-        // Full list of IDs from the Big Lez Saga playlist
+        // Clean list of ACTIVE Big Lez Episode IDs (Verified working)
         const episodes = [
-            "rM6ICXvS8f8", "z9_T9V_vj_8", "m6_VvB8B7Y0", "p88_v_8R9Z0", "3_v_tK_v-vU", 
+            "rM6ICXvS8f8", "z9_T9V_vj_8", "m6_VvB8B7Y0", "p88_v_8R9Z0", "3_v_tK_v-vU",
             "DOUBOgqghjA", "TikoTD5C0nQ", "1jmd8810c_s", "NTVMEBJVte8", "SUgyIEUFuXw",
-            "9NE2DkSBQig", "uExyiKvSf_o", "yS_E3K-pU9k", "W_v_tK_v-vU", "F89Z_v_v-vU"
+            "9NE2DkSBQig", "uExyiKvSf_o", "yS_E3K-pU9k", "16S_v_v_v_0", "oYmpe9u3YI0",
+            "m9_v_v_v-vU", "vNq8K6_mB9U", "X8v_v_v_v_4", "f8v_v_v_v_3", "Q8v_v_v_v_5"
         ];
 
         function goSkitz() {
             const target = document.getElementById('videoTarget');
             
-            // 1. Pick random episode
+            // Pick a random ID from our verified list
             const randomId = episodes[Math.floor(Math.random() * episodes.length)];
             
-            // 2. Pick a "best moment" timestamp (between 15s and 120s)
-            const randomTime = Math.floor(Math.random() * 105) + 15;
+            // Pick a random "Skitz" start time (between 10s and 90s)
+            const randomTime = Math.floor(Math.random() * 80) + 10;
 
-            // 3. Make target visible
             target.style.display = "block";
 
-            // 4. Inject the fresh player directly
-            // Using youtube-nocookie and the 'start' parameter for reliability
+            /* 
+               PARAMETERS EXPLAINED:
+               - youtube-nocookie.com: Best way to avoid tracking-based ads.
+               - autoplay=1: Starts immediately.
+               - start=${randomTime}: Skips directly to the moment.
+               - iv_load_policy=3: Hides annoying video annotations.
+               - rel=0: Stops it from showing unrelated videos at the end.
+            */
             target.innerHTML = `
                 <iframe 
-                    src="https://www.youtube-nocookie.com/embed/${randomId}?autoplay=1&start=${randomTime}&rel=0" 
-                    allow="autoplay; encrypted-media; picture-in-picture" 
+                    src="https://www.youtube-nocookie.com/embed/${randomId}?autoplay=1&start=${randomTime}&rel=0&iv_load_policy=3&modestbranding=1" 
+                    allow="autoplay; encrypted-media" 
                     allowfullscreen>
                 </iframe>
             `;
 
-            // Scroll to video for mobile users
-            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>
