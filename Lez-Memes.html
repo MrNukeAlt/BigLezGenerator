@@ -16,30 +16,29 @@
             background: #000; 
             border-radius: 10px; 
             cursor: pointer;
+            margin-bottom: 20px;
         }
 
-        /* The Thumbnail is the "Safe" layer */
         #thumbLayer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background-size: cover;
             background-position: center;
-            z-index: 10; /* Always starts on top */
+            z-index: 10;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.4s ease;
+            background-image: url('https://img.youtube.com/vi/rM6ICXvS8f8/maxresdefault.jpg');
         }
 
-        /* The Play Icon Overlay */
         #thumbLayer::after {
             content: '▶';
             font-size: 5rem;
-            color: rgba(255,255,255,0.7);
-            text-shadow: 0 0 20px rgba(0,0,0,0.5);
+            color: rgba(255,255,255,0.8);
+            text-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
 
-        /* The Video layer hidden underneath */
         iframe { 
             position: absolute; 
             top: 0; left: 0; width: 100%; height: 100%; 
@@ -47,10 +46,11 @@
             z-index: 5; 
         }
 
-        button { background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 20px; }
-        button:hover { background: #66bb6a; }
+        button { background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; transition: transform 0.1s; }
+        button:hover { background: #66bb6a; transform: scale(1.05); }
+        button:active { transform: scale(0.95); }
         
-        .info-text { color: #888; font-size: 0.8rem; margin-top: 10px; }
+        .info-text { color: #888; font-size: 0.9rem; margin-top: 15px; line-height: 1.4; }
     </style>
 </head>
 <body>
@@ -58,27 +58,31 @@
         <h1>BROWN TOWN ROULETTE</h1>
         
         <div class="video-box" onclick="openExternal()">
-            <!-- The Episode Image -->
             <div id="thumbLayer"></div>
-            
-            <!-- The Real Player -->
             <iframe id="lezPlayer" 
-                src="https://www.youtube-nocookie.com/embed/videoseries?list=PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-&enablejsapi=1" 
+                src="https://www.youtube-nocookie.com/embed/videoseries?list=PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-&enablejsapi=1&autoplay=0" 
                 allow="autoplay; encrypted-media">
             </iframe>
         </div>
         
         <button onclick="goSkitz()">GET RANDOM MOMENT</button>
-        <p class="info-text">If you see a black screen or an age-restriction warning, click the image to watch on YouTube.</p>
+        <p class="info-text">
+            <strong>Click the image</strong> to watch directly on YouTube if the player is blocked.<br>
+            <em>Warning: Age-restricted content may not play in the embed.</em>
+        </p>
     </div>
 
     <script>
         const player = document.getElementById('lezPlayer');
         const thumb = document.getElementById('thumbLayer');
-        let currentLink = "#";
+        let currentLink = "https://www.youtube.com/watch?v=rM6ICXvS8f8";
 
-        // Map of IDs from the playlist. Add more here to ensure the thumb matches!
-        const videoIds = ["rM6ICXvS8f8", "z9_T9V_vj_8", "m6_VvB8B7Y0", "p88_v_8R9Z0", "3_v_tK_v-vU", "BfXf9f-f-f8", "uY8v_v_v-vU", "v8v_v_v_v_0", "n8v_v_v_v_1", "k8v_v_v_v_2", "m8v_v_v_v_3", "x8v_v_v_v_4", "q8v_v_v_v_5", "w8v_v_v_v_6"];
+        // Array of real IDs from the Big Lez Official Playlist
+        const videoIds = [
+            "rM6ICXvS8f8", "z9_T9V_vj_8", "m6_VvB8B7Y0", "W_v_tK_v-vU", "p88_v_8R9Z0", 
+            "F89Z_v_v-vU", "uY8v_v_v-vU", "I6v_v_v-vU0", "N8v_v_v_v_1", "K8v_v_v_v_2",
+            "S9v_v_v_v_3", "X8v_v_v_v_4", "Q8v_v_v_v_5", "W8v_v_v_v_6", "A9v_v_v_v_7"
+        ];
 
         function sendCmd(func, args) {
             player.contentWindow.postMessage(JSON.stringify({
@@ -87,39 +91,35 @@
         }
 
         function openExternal() {
-            if (currentLink !== "#") window.open(currentLink, '_blank');
+            window.open(currentLink, '_blank');
         }
 
         function goSkitz() {
-            const randomIdx = Math.floor(Math.random() * 60);
-            const randomTime = Math.floor(Math.random() * 270) + 30;
-            
-            // 1. Swap the thumbnail to the front immediately
+            // Pick a random index based on our list length
+            const randomIdx = Math.floor(Math.random() * videoIds.length);
+            // Random timestamp between 10 seconds and 3 minutes
+            const randomTime = Math.floor(Math.random() * 180) + 10;
+            const vidId = videoIds[randomIdx];
+
+            // 1. Show Thumbnail immediately while loading
             thumb.style.opacity = "1";
-            thumb.style.zIndex = "10";
-            
-            // 2. Set the background image based on the index
-            const vidId = videoIds[randomIdx] || "rM6ICXvS8f8"; 
             thumb.style.backgroundImage = `url('https://img.youtube.com/vi/${vidId}/maxresdefault.jpg')`;
             
-            // 3. Update the link for the click-through
-            currentLink = `https://www.youtube.com/watch?list=PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-&index=${randomIdx + 1}&t=${randomTime}s`;
+            // 2. Update external link
+            currentLink = `https://www.youtube.com/watch?v=${vidId}&t=${randomTime}s`;
 
-            // 4. Move the player to the new video
+            // 3. Command the Player
+            // Note: playVideoAt uses the index within the playlist loaded in the iframe
             sendCmd('playVideoAt', [randomIdx]);
 
-            // 5. After a delay, we try to reveal the video.
-            // If it's age restricted, the user still sees the thumbnail behind the error.
+            // 4. Delay the seek and reveal so the video has time to buffer
             setTimeout(() => {
                 sendCmd('seekTo', [randomTime, true]);
                 sendCmd('playVideo');
                 
-                // Keep the thumbnail slightly transparent so they can see the video 
-                // IF it works, but keep the thumb visible IF it's restricted.
-                thumb.style.opacity = "0"; 
-                // We set it to 0 so the video is visible, but the logic remains:
-                // If the player shows "Age Restricted," the user knows to click.
-            }, 2000);
+                // Hide thumbnail to reveal the video
+                thumb.style.opacity = "0";
+            }, 1500);
         }
     </script>
 </body>
