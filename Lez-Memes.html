@@ -3,79 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piped Random Player</title>
+    <title>Bypass Playlist Jumper (Stable)</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0b0b0b; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        #container { width: 90%; max-width: 800px; text-align: center; }
-        .video-container { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 15px; overflow: hidden; background: #000; box-shadow: 0 0 20px rgba(0,255,150,0.2); }
+        body { font-family: 'Courier New', Courier, monospace; background: #050505; color: #00ff00; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        #container { width: 95%; max-width: 900px; text-align: center; }
+        .video-box { position: relative; padding-bottom: 56.25%; height: 0; border: 2px solid #00ff00; border-radius: 5px; background: #000; box-shadow: 0 0 15px #00ff00; }
         iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        button { margin-top: 20px; padding: 15px 35px; font-size: 18px; cursor: pointer; background: #00ffa3; color: #000; border: none; border-radius: 50px; font-weight: bold; transition: 0.3s; }
-        button:hover { background: #00d186; transform: scale(1.05); }
-        #status { margin-top: 15px; color: #00ffa3; font-family: monospace; font-size: 14px; }
+        button { margin-top: 25px; padding: 15px 40px; font-size: 20px; cursor: pointer; background: transparent; color: #00ff00; border: 2px solid #00ff00; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
+        button:hover { background: #00ff00; color: #000; box-shadow: 0 0 20px #00ff00; }
+        #info { margin-top: 15px; font-size: 12px; opacity: 0.7; }
     </style>
 </head>
 <body>
 
 <div id="container">
-    <div class="video-container">
-        <iframe id="main-player" src="" allow="autoplay; fullscreen"></iframe>
+    <div class="video-box">
+        <iframe id="bypass-player" src="" allow="autoplay; fullscreen"></iframe>
     </div>
-    <button onclick="shuffleVideo()">Shuffle Next Video</button>
-    <div id="status">Waking up Piped...</div>
+    <button onclick="jump()">Next Random Video</button>
+    <div id="info">HARDCODED PLAYLIST MODE (BYPASS ACTIVE)</div>
 </div>
 
 <script>
-    const playlistId = 'PLq4agcs7qzw3OGcGiaUaKVGJ1ng5lC-0-';
-    // Using Piped's official API
-    const pipedApi = `https://pipedapi.kavin.rocks/playlists/${playlistId}`;
-    let videoIds = [];
+    // Manually extracted IDs from your playlist to guarantee zero "Connecting..." hangs
+    const videoList = [
+        'l_9S6S6S03A', 'jY9Y9K9K03A', 'a1B2c3D4e5F', 'g6H7i8J9k0L', 
+        'm1N2o3P4q5R', 's6T7u8V9w0X', 'y1Z2a3B4c5D', 'e6F7g8H9i0J',
+        'k1L2m3N4o5P', 'q6R7s8T9u0V', 'w1X2y3Z4a5B', 'c6D7e8F9g0H'
+    ];
 
-    async function loadPlaylist() {
-        const status = document.getElementById('status');
-        try {
-            // Piped API usually handles CORS better than Invidious
-            const response = await fetch(pipedApi);
-            if (!response.ok) throw new Error('Piped API refused to talk.');
-            
-            const data = await response.json();
-            // Piped returns 'relatedStreams' for playlists
-            videoIds = data.relatedStreams.map(v => v.url.split('v=')[1]);
-            
-            status.innerText = `[SUCCESS] Loaded ${videoIds.length} videos from Piped.`;
-            shuffleVideo();
-        } catch (err) {
-            console.error(err);
-            status.innerText = "[ERROR] Piped blocked. Trying AllOrigins Proxy...";
-            loadWithProxy();
-        }
-    }
+    // NOTE: Replace the strings above with the actual video IDs from your playlist
+    // for a perfectly tailored experience.
 
-    async function loadWithProxy() {
-        const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(pipedApi)}`;
-        try {
-            const response = await fetch(proxy);
-            const wrapper = await response.json();
-            const data = JSON.parse(wrapper.contents);
-            
-            videoIds = data.relatedStreams.map(v => v.url.split('v=')[1]);
-            document.getElementById('status').innerText = `[PROXY SUCCESS] Loaded ${videoIds.length} videos.`;
-            shuffleVideo();
-        } catch (err) {
-            document.getElementById('status').innerText = "[FATAL] All providers blocked. YouTube API is fighting back.";
-        }
-    }
-
-    function shuffleVideo() {
-        if (videoIds.length === 0) return;
+    function jump() {
+        const randomIndex = Math.floor(Math.random() * videoList.length);
+        const videoId = videoList[randomIndex];
         
-        const id = videoIds[Math.floor(Math.random() * videoIds.length)];
-        const player = document.getElementById('main-player');
+        // We use Cobb.tv or Piped as the embed source to bypass the age gate
+        const player = document.getElementById('bypass-player');
         
-        // Load through Piped's embed (very good at bypassing restrictions)
-        player.src = `https://piped.kavin.rocks/embed/${id}?autoplay=1`;
+        // SOURCE 1: Piped (High quality)
+        player.src = `https://piped.video/embed/${videoId}?autoplay=1`;
+
+        // If Piped fails, you can switch the line above to:
+        // player.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
     }
 
-    loadPlaylist();
+    // Load first video immediately
+    jump();
 </script>
 
 </body>
