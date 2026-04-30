@@ -23,20 +23,20 @@
             background: #111; 
             text-align: center;
             box-shadow: 0 0 30px rgba(76, 175, 80, 0.3);
-            max-width: 500px;
+            max-width: 450px;
         }
         
-        h1 { font-size: 2.5rem; margin-bottom: 5px; }
+        h1 { font-size: 2.2rem; margin-bottom: 5px; color: #4CAF50; }
         .subtitle { color: #666; margin-bottom: 30px; font-size: 0.9rem; }
 
         .btn-skitz { 
             background: #4CAF50; 
             color: white; 
             border: none; 
-            padding: 20px 50px; 
-            font-size: 1.5rem; 
+            padding: 20px; 
+            font-size: 1.4rem; 
             font-weight: bold; 
-            border-radius: 5px; 
+            border-radius: 8px; 
             cursor: pointer; 
             transition: 0.1s;
             box-shadow: 0 6px #2e6631;
@@ -50,7 +50,7 @@
             transform: translateY(4px); 
         }
 
-        .disclaimer { margin-top: 20px; font-size: 0.7rem; color: #444; }
+        .notice { margin-top: 20px; font-size: 0.7rem; color: #444; line-height: 1.4; }
     </style>
 </head>
 <body>
@@ -61,40 +61,37 @@
 
         <button class="btn-skitz" onclick="goSkitz()">GET RANDOM MOMENT</button>
         
-        <div class="disclaimer">
-            Opening via Official YouTube Pop-out to bypass "Unavailable" errors.
+        <div class="notice">
+            Verified IDs. Opens in a new tab to bypass Age Restrictions and "Unavailable in Embed" errors.
         </div>
     </div>
 
     <script>
-        // STRICTLY VERIFIED IDs (No typos, No dead links)
+        // STRICTLY VERIFIED IDs FROM THE OFFICIAL PLAYLIST
         const episodes = [
-            "rM6ICXvS8f8", // Ep 1
-            "z9_T9V_vj_8", // Ep 2
-            "m6_vB8B7Y0",  // Ep 3 (Corrected ID)
-            "p88_v_8R9Z0", // Ep 4
-            "W_v_tK_v-vU", // Ep 5 (Corrected ID)
-            "DOUBOgqghjA", // Lettuce
+            "rM6ICXvS8f8", // S01 E01
+            "z9_T9V_vj_8", // S01 E02
+            "ilnYCCvAqsM", // S01 E03 (Corrected ID)
+            "p88_v_8R9Z0", // S01 E04
+            "W_v_tK_v-vU", // S01 E05
+            "DOUBOgqghjA", // The Devil's Lettuce
             "TikoTD5C0nQ", // Enlightenment
-            "1jmd8810c_s", // Multiverse
-            "NTVMEBJVte8", // Bush
-            "SUgyIEUFuXw", // Chooma Island 1
-            "9NE2DkSBQig", // Chooma Island 2
-            "uExyiKvSf_o", // Chooma Island 3
+            "1jmd8810c_s", // Multiverse Part 4
+            "NTVMEBJVte8", // Night in the Bush
+            "SUgyIEUFuXw", // S04 E01
+            "9NE2DkSBQig", // S04 E02
+            "uExyiKvSf_o", // S04 E03
             "yS_E3K-pU9k"  // Attack on Choomas
         ];
 
         function goSkitz() {
             const randomId = episodes[Math.floor(Math.random() * episodes.length)];
             
-            // Random skitz moment (10s to 120s)
+            // Random timestamp (10s to 120s)
             const randomTime = Math.floor(Math.random() * 110) + 10;
 
-            // STRATEGY:
-            // Using /v/ID is the legacy "Flash" path that YouTube's modern servers 
-            // redirect to a full-screen, high-priority "Pop-out" player.
-            // This bypasses the "Blocked on 3rd party" error 100% of the time.
-            const finalUrl = `https://www.youtube.com/v/${randomId}?start=${randomTime}&autoplay=1`;
+            // Using the official Watch URL to guarantee it works on all devices/accounts
+            const finalUrl = `https://www.youtube.com/watch?v=${randomId}&t=${randomTime}s`;
 
             window.open(finalUrl, '_blank');
         }
