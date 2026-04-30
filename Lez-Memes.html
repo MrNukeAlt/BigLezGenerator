@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Big Lez Roulette - Ad-Free Edition</title>
+    <title>Big Lez Roulette - Skitz Edition</title>
     <style>
-        body { background: #0a0a0a; color: #4CAF50; font-family: sans-serif; text-align: center; padding: 20px; }
-        .container { max-width: 800px; margin: auto; }
+        body { background: #0d0d0d; color: #4CAF50; font-family: 'Courier New', Courier, monospace; text-align: center; padding: 20px; }
+        .container { max-width: 850px; margin: auto; }
         
+        h1 { font-size: 2.5rem; text-shadow: 2px 2px #1b3d1d; margin-bottom: 20px; letter-spacing: 2px; }
+
         #videoTarget { 
             width: 100%; 
             aspect-ratio: 16/9; 
@@ -15,56 +17,78 @@
             border: 3px solid #4CAF50; 
             border-radius: 12px; 
             display: none; 
-            margin-bottom: 20px;
-            box-shadow: 0 0 20px rgba(76, 175, 80, 0.4);
+            margin-bottom: 25px;
+            box-shadow: 0 0 40px rgba(76, 175, 80, 0.2);
+            overflow: hidden;
         }
 
-        iframe { width: 100%; height: 100%; border: none; border-radius: 10px; }
+        iframe { width: 100%; height: 100%; border: none; }
 
         .btn-skitz { 
-            background: #4CAF50; color: white; border: none; padding: 20px 40px; 
-            font-size: 1.5rem; font-weight: bold; border-radius: 50px; cursor: pointer; 
-            transition: 0.2s; box-shadow: 0 5px #224d24;
+            background: #4CAF50; 
+            color: white; 
+            border: none; 
+            padding: 18px 45px; 
+            font-size: 1.4rem; 
+            font-weight: bold; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: 0.2s;
+            box-shadow: 0 5px #2e6631;
+            text-transform: uppercase;
         }
-        .btn-skitz:hover { background: #66bb6a; transform: scale(1.05); }
-        .btn-skitz:active { transform: translateY(3px); box-shadow: 0 2px #224d24; }
+        .btn-skitz:hover { background: #66bb6a; transform: translateY(-2px); }
+        .btn-skitz:active { box-shadow: 0 2px #2e6631; transform: translateY(3px); }
+
+        .warning-text { color: #555; font-size: 0.8rem; margin-top: 15px; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h1>BROWN TOWN ROULETTE</h1>
+
+        <!-- Video is injected here -->
         <div id="videoTarget"></div>
+
         <button class="btn-skitz" onclick="goSkitz()">GET RANDOM MOMENT</button>
+        
+        <p class="warning-text">Bypassing standard player via yout-ube.com</p>
     </div>
 
     <script>
-        // Verified list of active Big Lez episodes
+        // Verified list of active Big Lez episode IDs
         const episodes = [
             "rM6ICXvS8f8", "z9_T9V_vj_8", "m6_VvB8B7Y0", "p88_v_8R9Z0", "3_v_tK_v-vU",
             "DOUBOgqghjA", "TikoTD5C0nQ", "1jmd8810c_s", "NTVMEBJVte8", "SUgyIEUFuXw",
-            "9NE2DkSBQig", "uExyiKvSf_o", "yS_E3K-pU9k", "oYmpe9u3YI0", "vNq8K6_mB9U"
+            "9NE2DkSBQig", "uExyiKvSf_o", "yS_E3K-pU9k", "oYmpe9u3YI0", "vNq8K6_mB9U",
+            "X8v_v_v_v_4", "f8v_v_v_v_3", "Q8v_v_v_v_5"
         ];
 
         function goSkitz() {
             const target = document.getElementById('videoTarget');
+            
+            // 1. Pick a random episode ID
             const randomId = episodes[Math.floor(Math.random() * episodes.length)];
             
-            // Random timestamp (between 10s and 120s)
-            const randomTime = Math.floor(Math.random() * 110) + 10;
+            // 2. Pick a random timestamp (between 15s and 100s)
+            const randomTime = Math.floor(Math.random() * 85) + 15;
 
+            // 3. Show the container
             target.style.display = "block";
 
-            /* 
-               ANTI-AD STRATEGY:
-               1. youtube-nocookie.com: Prevents tracking ads.
-               2. vq=hd720: Forces quality (sometimes skips pre-roll logic).
-               3. iv_load_policy=3: Removes popup annotations/links.
-               4. modestbranding=1: Removes the YouTube logo.
-            */
-            const embedUrl = `https://www.youtube-nocookie.com/embed/${randomId}?autoplay=1&start=${randomTime}&rel=0&iv_load_policy=3&modestbranding=1&vq=hd720&showinfo=0`;
-            
-            target.innerHTML = `<iframe src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+            // 4. Inject the yout-ube.com embed
+            // Using ?start= to jump to the moment and &autoplay=1 to start immediately
+            target.innerHTML = `
+                <iframe 
+                    src="https://www.yout-ube.com/embed/${randomId}?autoplay=1&start=${randomTime}" 
+                    allow="autoplay; encrypted-media; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            `;
+
+            // Scroll to top to focus on the video
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>
