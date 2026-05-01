@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brown Town Roulette - Smart Jump Edition</title>
+    <title>Brown Town Roulette - Auto-Audio Edition</title>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
@@ -26,7 +26,7 @@
             background: #000; 
             box-shadow: 0 0 50px rgba(0,0,0,0.9); 
         }
-        iframe { width: 100%; height: 100%; border: none; }
+        #vid-frame { width: 100%; height: 100%; border: none; }
         
         button { 
             margin-top: 30px; 
@@ -49,67 +49,69 @@
 <body>
 
 <div id="player-container">
-    <iframe id="vid-frame" 
-            src="" 
-            allow="autoplay; encrypted-media; fullscreen" 
-            allowfullscreen>
-    </iframe>
+    <div id="vid-frame"></div>
 </div>
 
-<button onclick="spin()">Brown Town Roulette</button>
-<div id="status">SMART JUMP LOADED</div>
+<button id="spin-btn">Brown Town Roulette</button>
+<div id="status">INITIALIZING AUDIO ENGINE...</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-    // Video Pool with Durations (in seconds)
-    // Format: [VideoID, TotalDurationInSeconds]
+    let player;
+    const playlistId = 'PLK0uESsbsHVwBMgfF4M3WbCmHrVyWca8l';
+    
     const videoPool = [
-        ['K0uESsbsHVw', 5635], // ~1h 33m
-        ['BMgfF4M3WbC', 3200], // ~53m
-        ['mHrVyWca8lA', 2800], 
-        ['uESsbsHVwBM', 4100],
-        ['gfF4M3WbCmH', 3600],
-        ['rVyWca8lK0u', 1200], // Short one
-        ['SsbsHVwBMgf', 5400],
-        ['F4M3WbCmHrV', 900],  // 15m
-        ['yWca8lK0uES', 3300],
-        ['sbsHVwBMgfF', 4800],
-        ['4M3WbCmHrVy', 2500],
-        ['Wca8lK0uESs', 5600]
+        ['K0uESsbsHVw', 5635], ['BMgfF4M3WbC', 3200], ['mHrVyWca8lA', 2800], 
+        ['uESsbsHVwBM', 4100], ['gfF4M3WbCmH', 3600], ['rVyWca8lK0u', 1200], 
+        ['SsbsHVwBMgf', 5400], ['F4M3WbCmHrV', 900],  ['yWca8lK0uES', 3300],
+        ['sbsHVwBMgfF', 4800], ['4M3WbCmHrVy', 2500], ['Wca8lK0uESs', 5600]
     ];
 
-    function spin() {
-        const frame = document.getElementById('vid-frame');
-        
-        // 1. Pick a random entry from the pool
+    // Initialize the API Player
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('vid-frame', {
+            height: '100%',
+            width: '100%',
+            playerVars: {
+                'autoplay': 1,
+                'controls': 1,
+                'modestbranding': 1,
+                'rel': 0,
+                'enablejsapi': 1,
+                'origin': window.location.origin
+            },
+            events: {
+                'onReady': () => {
+                    document.getElementById('status').innerText = "AUDIO UNLOCKED - READY TO SPIN";
+                }
+            }
+        });
+    }
+
+    document.getElementById('spin-btn').addEventListener('click', function() {
+        if (!player) return;
+
         const selection = videoPool[Math.floor(Math.random() * videoPool.length)];
         const videoId = selection[0];
         const maxDuration = selection[1];
-
-        // 2. SMART JUMP LOGIC:
-        // Jump to a random spot between 10 seconds and 90% of the video.
-        // This ensures you always land in a playable area.
         const randomSeconds = Math.floor(Math.random() * (maxDuration * 0.9)) + 10;
 
-        const baseUrl = "https://www.youtube-nocookie.com/embed/";
-        const playlistParam = "PLK0uESsbsHVwBMgfF4M3WbCmHrVyWca8l";
-        
-        const finalUrl = `${baseUrl}${videoId}?autoplay=1&mute=1&start=${randomSeconds}&list=${playlistParam}&rel=0`;
+        // The "Magic" sequence: 
+        // 1. Load video by ID
+        // 2. Browser sees this click and allows the 'unMute' command
+        player.loadVideoById({
+            videoId: videoId,
+            startSeconds: randomSeconds
+        });
 
-        // Hard reset to force the jump
-        frame.src = "about:blank"; 
-        
-        setTimeout(() => {
-            frame.src = finalUrl;
-            
-            const mins = Math.floor(randomSeconds / 60);
-            const secs = randomSeconds % 60;
-            const timeDisplay = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-            
-            document.getElementById('status').innerText = `SPUN TO: ${videoId} @ ${timeDisplay} (MAX: ${Math.floor(maxDuration/60)}m)`;
-        }, 100);
-    }
+        player.unMute();
+        player.setVolume(50);
 
-    window.onload = spin;
+        const mins = Math.floor(randomSeconds / 60);
+        const secs = randomSeconds % 60;
+        document.getElementById('status').innerText = `SPUN! VOLUME 50% | JUMPED TO ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    });
 </script>
 
 </body>
