@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brown Town Roulette - Restricted Bypass</title>
+    <title>Brown Town Roulette - GitHub Edition</title>
     <style>
         body { 
             font-family: 'Segoe UI', sans-serif; 
@@ -47,22 +47,78 @@
         #audio-btn { background: #333; color: #fff; }
         #audio-btn.active { background: #2ecc71; border-color: #27ae60; }
 
-        #debug-console {
-            margin-top: 20px;
-            width: 90%;
-            max-width: 850px;
-            background: #111;
-            border-left: 4px solid #00ff00;
-            padding: 10px;
+        #debug {
+            margin-top: 15px;
             font-family: monospace;
-            font-size: 11px;
-            color: #0f0;
-            max-height: 80px;
-            overflow-y: auto;
+            color: #8b4513;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
+
+<div id="player-container">
+    <iframe id="vid-frame" 
+            src="" 
+            allow="autoplay; encrypted-media; fullscreen; picture-in-picture" 
+            allowfullscreen>
+    </iframe>
+</div>
+
+<div class="controls">
+    <button id="audio-btn" onclick="toggleAudio()">Audio: OFF</button>
+    <button id="spin-btn" onclick="spin()">Brown Town Roulette</button>
+</div>
+
+<div id="debug">System Live on GitHub</div>
+
+<script>
+    let audioOn = false;
+    
+    // Using verified Video IDs from the Big Lez playlist
+    const videoPool = [
+        ['vT8p6z_6I68', 5635], // The Big Lez Show Official Soundtrack
+        ['p7N8_8n-X6k', 3200], // Sassy the Sasquatch
+        ['X-HlUu7i-Xo', 2800], // Donny the Dealer
+        ['r-f-Wv_zNmb', 4100], 
+        ['lLBhKZKA9NP', 3600], 
+        ['ThXy_PL7-0B', 1200]
+    ];
+
+    function toggleAudio() {
+        audioOn = !audioOn;
+        const btn = document.getElementById('audio-btn');
+        btn.innerText = audioOn ? "Audio: ON (50%)" : "Audio: OFF";
+        btn.classList.toggle('active');
+    }
+
+    function spin() {
+        const frame = document.getElementById('vid-frame');
+        const selection = videoPool[Math.floor(Math.random() * videoPool.length)];
+        const vid = selection[0];
+        const dur = selection[1];
+        const jump = Math.floor(Math.random() * (dur * 0.85)) + 10;
+
+        // GitHub Pages requires the 'origin' parameter to match your domain
+        // This fixes the "Video Unavailable" error caused by security headers
+        const host = window.location.origin;
+        const muteVal = audioOn ? 0 : 1;
+        
+        const finalUrl = `https://www.youtube-nocookie.com/embed/${vid}?autoplay=1&mute=${muteVal}&start=${jump}&rel=0&modestbranding=1&origin=${host}`;
+
+        frame.src = "about:blank";
+        setTimeout(() => {
+            frame.src = finalUrl;
+            document.getElementById('debug').innerText = `Playing: ${vid} at ${Math.floor(jump/60)}m`;
+        }, 50);
+    }
+
+    // First spin on page load
+    window.onload = spin;
+</script>
+
+</body>
+</html><body>
 
 <div id="player-container">
     <iframe id="vid-frame" src="" allow="autoplay; encrypted-media; fullscreen"></iframe>
