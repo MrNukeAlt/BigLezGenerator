@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brown Town Roulette - Final Bypass</title>
+    <title>Brown Town Roulette - Debug Edition</title>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
@@ -13,8 +13,9 @@
             flex-direction: column; 
             align-items: center; 
             justify-content: center; 
-            height: 100vh; 
+            min-height: 100vh; 
             margin: 0; 
+            padding: 20px;
         }
         #player-container { 
             width: 90%; 
@@ -26,39 +27,50 @@
             background: #000; 
             box-shadow: 0 0 50px rgba(0,0,0,0.9); 
         }
-        iframe { width: 100%; height: 100%; border: none; }
+        #vid-frame { width: 100%; height: 100%; border: none; }
         
-        .controls { margin-top: 30px; display: flex; gap: 15px; }
+        .controls { margin-top: 25px; display: flex; gap: 15px; }
 
         button { 
-            padding: 20px 40px; 
-            font-size: 18px; 
+            padding: 15px 30px; 
+            font-size: 16px; 
             font-weight: bold; 
             cursor: pointer; 
             border-radius: 50px; 
             transition: 0.2s; 
             text-transform: uppercase; 
-            letter-spacing: 2px;
             border: 2px solid #5c3c10;
         }
 
-        #spin-btn { background: #8b4513; color: #fff; font-size: 22px; }
-        #spin-btn:hover { transform: scale(1.08); background: #a0522d; }
+        #spin-btn { background: #8b4513; color: #fff; }
+        #spin-btn:hover { background: #a0522d; transform: scale(1.05); }
 
         #audio-btn { background: #333; color: #fff; }
-        #audio-btn.unmuted { background: #2ecc71; border-color: #27ae60; }
+        #audio-btn.active { background: #2ecc71; border-color: #27ae60; }
 
-        #status { margin-top: 15px; font-size: 14px; color: #8b4513; font-family: monospace; font-weight: bold; }
+        /* Debug Screen Styles */
+        #debug-console {
+            margin-top: 20px;
+            width: 90%;
+            max-width: 850px;
+            background: #000;
+            border: 1px solid #ff4444;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            color: #0f0; /* Terminal Green */
+            overflow-y: auto;
+            max-height: 150px;
+        }
+        .error-msg { color: #ff4444; font-weight: bold; }
+        .info-msg { color: #aaa; }
     </style>
 </head>
 <body>
 
 <div id="player-container">
-    <iframe id="vid-frame" 
-            src="" 
-            allow="autoplay; encrypted-media; fullscreen" 
-            allowfullscreen>
-    </iframe>
+    <div id="vid-frame"></div>
 </div>
 
 <div class="controls">
@@ -66,10 +78,16 @@
     <button id="spin-btn" onclick="spin()">Brown Town Roulette</button>
 </div>
 
-<div id="status">BYPASS MODE LOADED</div>
+<div id="debug-console">
+    <div>[DEBUG] System Initializing...</div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-    let audioSetting = 0; // 0 = Muted, 1 = Unmuted (50%)
+    let player;
+    let audioEnabled = false;
+    const debug = document.getElementById('debug-console');
 
     const videoPool = [
         ['vT8p6z_6I68', 5635], ['p7N8_8n-X6k', 3200], ['X-HlUu7i-Xo', 2800], 
@@ -78,50 +96,79 @@
         ['sbsHVwBMgfF', 4800], ['4M3WbCmHrVy', 2500], ['Wca8lK0uESs', 5600]
     ];
 
+    function log(msg, type = 'info') {
+        const div = document.createElement('div');
+        div.className = type === 'error' ? 'error-msg' : 'info-msg';
+        div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        debug.prepend(div);
+    }
+
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('vid-frame', {
+            height: '100%',
+            width: '100%',
+            playerVars: {
+                'autoplay': 1,
+                'controls': 1,
+                'rel': 0,
+                'enablejsapi': 1,
+                'origin': window.location.origin
+            },
+            events: {
+                'onReady': () => log("Player Ready."),
+                'onError': onPlayerError
+            }
+        });
+    }
+
+    function onPlayerError(event) {
+        const errors = {
+            2: "Invalid Parameter (Video ID is wrong)",
+            5: "HTML5 Player Error (Browser issue)",
+            100: "Video Deleted or Marked Private",
+            101: "EMBEDDING BLOCKED: Owner disabled playback on external sites",
+            150: "EMBEDDING BLOCKED: Likely a music video or copyright restriction"
+        };
+        const errorMsg = errors[event.data] || `Unknown Error (Code: ${event.data})`;
+        log(`CRITICAL: ${errorMsg}`, 'error');
+    }
+
     function toggleAudio() {
+        audioEnabled = !audioEnabled;
         const btn = document.getElementById('audio-btn');
-        if (audioSetting === 0) {
-            audioSetting = 1;
+        if (audioEnabled) {
             btn.innerText = "Audio: ON (50%)";
-            btn.classList.add('unmuted');
+            btn.classList.add('active');
+            player.unMute();
+            player.setVolume(50);
+            log("Audio Enabled - Volume 50%");
         } else {
-            audioSetting = 0;
             btn.innerText = "Audio: OFF";
-            btn.classList.remove('unmuted');
-        }
-        // Refresh the current video with the new audio setting
-        const currentSrc = document.getElementById('vid-frame').src;
-        if (currentSrc) {
-            const newSrc = currentSrc.replace(/mute=[01]/, `mute=${audioSetting === 1 ? 0 : 1}`);
-            document.getElementById('vid-frame').src = newSrc;
+            btn.classList.remove('active');
+            player.mute();
+            log("Audio Muted");
         }
     }
 
     function spin() {
-        const frame = document.getElementById('vid-frame');
+        if (!player) return;
         const selection = videoPool[Math.floor(Math.random() * videoPool.length)];
         const videoId = selection[0];
         const maxDuration = selection[1];
+        const jump = Math.floor(Math.random() * (maxDuration * 0.9)) + 10;
 
-        const randomSeconds = Math.floor(Math.random() * (maxDuration * 0.9)) + 10;
+        log(`Spinning to ${videoId} at ${jump}s...`);
 
-        // Construct the bypass URL
-        // We use the nocookie domain and force the mute parameter based on our button
-        const baseUrl = "https://www.youtube-nocookie.com/embed/";
-        const finalUrl = `${baseUrl}${videoId}?autoplay=1&mute=${audioSetting === 1 ? 0 : 1}&start=${randomSeconds}&rel=0&modestbranding=1&enablejsapi=1`;
+        player.loadVideoById({
+            videoId: videoId,
+            startSeconds: jump
+        });
 
-        frame.src = "about:blank"; 
-        
-        setTimeout(() => {
-            frame.src = finalUrl;
-            
-            const mins = Math.floor(randomSeconds / 60);
-            const secs = randomSeconds % 60;
-            document.getElementById('status').innerText = `SPUN TO: ${videoId} @ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        }, 100);
+        if (audioEnabled) {
+            player.unMute();
+            player.setVolume(50);
+        }
     }
-
-    window.onload = spin;
 </script>
 
 </body>
