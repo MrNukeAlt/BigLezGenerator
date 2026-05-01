@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brown Town Roulette - Audio Master</title>
+    <title>Brown Town Roulette - Final Bypass</title>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
@@ -26,7 +26,7 @@
             background: #000; 
             box-shadow: 0 0 50px rgba(0,0,0,0.9); 
         }
-        #vid-frame { width: 100%; height: 100%; border: none; }
+        iframe { width: 100%; height: 100%; border: none; }
         
         .controls { margin-top: 30px; display: flex; gap: 15px; }
 
@@ -45,8 +45,8 @@
         #spin-btn { background: #8b4513; color: #fff; font-size: 22px; }
         #spin-btn:hover { transform: scale(1.08); background: #a0522d; }
 
-        #audio-toggle { background: #333; color: #fff; }
-        #audio-toggle.on { background: #2ecc71; border-color: #27ae60; }
+        #audio-btn { background: #333; color: #fff; }
+        #audio-btn.unmuted { background: #2ecc71; border-color: #27ae60; }
 
         #status { margin-top: 15px; font-size: 14px; color: #8b4513; font-family: monospace; font-weight: bold; }
     </style>
@@ -54,92 +54,74 @@
 <body>
 
 <div id="player-container">
-    <div id="vid-frame"></div>
+    <iframe id="vid-frame" 
+            src="" 
+            allow="autoplay; encrypted-media; fullscreen" 
+            allowfullscreen>
+    </iframe>
 </div>
 
 <div class="controls">
-    <button id="audio-toggle" onclick="toggleAudio()">Audio: OFF</button>
+    <button id="audio-btn" onclick="toggleAudio()">Audio: OFF</button>
     <button id="spin-btn" onclick="spin()">Brown Town Roulette</button>
 </div>
 
-<div id="status">INITIALIZING PLAYER...</div>
-
-<script src="https://www.youtube.com/iframe_api"></script>
+<div id="status">BYPASS MODE LOADED</div>
 
 <script>
-    let player;
-    let audioEnabled = false;
+    let audioSetting = 0; // 0 = Muted, 1 = Unmuted (50%)
 
     const videoPool = [
-        ['K0uESsbsHVw', 5635], ['BMgfF4M3WbC', 3200], ['mHrVyWca8lA', 2800], 
-        ['uESsbsHVwBM', 4100], ['gfF4M3WbCmH', 3600], ['rVyWca8lK0u', 1200], 
+        ['vT8p6z_6I68', 5635], ['p7N8_8n-X6k', 3200], ['X-HlUu7i-Xo', 2800], 
+        ['r-f-Wv_zNmb', 4100], ['lLBhKZKA9NP', 3600], ['ThXy_PL7-0B', 1200], 
         ['SsbsHVwBMgf', 5400], ['F4M3WbCmHrV', 900],  ['yWca8lK0uES', 3300],
         ['sbsHVwBMgfF', 4800], ['4M3WbCmHrVy', 2500], ['Wca8lK0uESs', 5600]
     ];
 
-    function onYouTubeIframeAPIReady() {
-        player = new YT.Player('vid-frame', {
-            height: '100%',
-            width: '100%',
-            playerVars: {
-                'autoplay': 1,
-                'controls': 1,
-                'modestbranding': 1,
-                'rel': 0,
-                'enablejsapi': 1
-            },
-            events: {
-                'onReady': onPlayerReady
-            }
-        });
-    }
-
-    function onPlayerReady(event) {
-        document.getElementById('status').innerText = "PLAYER READY - TOGGLE AUDIO TO START";
-    }
-
     function toggleAudio() {
-        const btn = document.getElementById('audio-toggle');
-        audioEnabled = !audioEnabled;
-        
-        if (audioEnabled) {
+        const btn = document.getElementById('audio-btn');
+        if (audioSetting === 0) {
+            audioSetting = 1;
             btn.innerText = "Audio: ON (50%)";
-            btn.classList.add('on');
-            player.unMute();
-            player.setVolume(50);
+            btn.classList.add('unmuted');
         } else {
+            audioSetting = 0;
             btn.innerText = "Audio: OFF";
-            btn.classList.remove('on');
-            player.mute();
+            btn.classList.remove('unmuted');
+        }
+        // Refresh the current video with the new audio setting
+        const currentSrc = document.getElementById('vid-frame').src;
+        if (currentSrc) {
+            const newSrc = currentSrc.replace(/mute=[01]/, `mute=${audioSetting === 1 ? 0 : 1}`);
+            document.getElementById('vid-frame').src = newSrc;
         }
     }
 
     function spin() {
-        if (!player) return;
-
+        const frame = document.getElementById('vid-frame');
         const selection = videoPool[Math.floor(Math.random() * videoPool.length)];
         const videoId = selection[0];
         const maxDuration = selection[1];
+
         const randomSeconds = Math.floor(Math.random() * (maxDuration * 0.9)) + 10;
 
-        player.loadVideoById({
-            videoId: videoId,
-            startSeconds: randomSeconds
-        });
+        // Construct the bypass URL
+        // We use the nocookie domain and force the mute parameter based on our button
+        const baseUrl = "https://www.youtube-nocookie.com/embed/";
+        const finalUrl = `${baseUrl}${videoId}?autoplay=1&mute=${audioSetting === 1 ? 0 : 1}&start=${randomSeconds}&rel=0&modestbranding=1&enablejsapi=1`;
 
-        // Re-apply audio preference to new video load
-        if (audioEnabled) {
-            player.unMute();
-            player.setVolume(50);
-        } else {
-            player.mute();
-        }
-
-        const mins = Math.floor(randomSeconds / 60);
-        const secs = randomSeconds % 60;
-        const timeDisplay = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        document.getElementById('status').innerText = `SPUN TO: ${videoId} @ ${timeDisplay} | VOLUME: ${audioEnabled ? '50%' : '0%'}`;
+        frame.src = "about:blank"; 
+        
+        setTimeout(() => {
+            frame.src = finalUrl;
+            
+            const mins = Math.floor(randomSeconds / 60);
+            const secs = randomSeconds % 60;
+            document.getElementById('status').innerText = `SPUN TO: ${videoId} @ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }, 100);
     }
+
+    window.onload = spin;
 </script>
 
 </body>
