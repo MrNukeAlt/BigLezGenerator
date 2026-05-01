@@ -27,7 +27,7 @@
             background: #000; 
             box-shadow: 0 0 50px rgba(0,0,0,0.9); 
         }
-        iframe { width: 100%; height: 100%; border: none; }
+        #vid-frame { width: 100%; height: 100%; border: none; }
         
         button { 
             margin-top: 30px; 
@@ -43,11 +43,11 @@
             text-transform: uppercase; 
             letter-spacing: 2px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            z-index: 10;
         }
         button:hover { 
             transform: scale(1.08); 
             background: #a0522d; 
-            box-shadow: 0 6px 20px rgba(0,0,0,0.6);
         }
         button:active { transform: scale(0.95); }
 
@@ -63,53 +63,66 @@
 <body>
 
 <div id="player-container">
-    <iframe id="vid-frame" 
-            title="Brown Town Player"
-            src="" 
-            allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-            allowfullscreen>
-    </iframe>
+    <!-- The API will replace this div with the actual iframe -->
+    <div id="vid-frame"></div>
 </div>
 
 <button onclick="spin()">Brown Town Roulette</button>
-<div id="counter">WELCOME TO BROWN TOWN</div>
+<div id="counter">INITIALIZING BROWN TOWN...</div>
+
+<!-- Load the YouTube IFrame API -->
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-    // Your specific playlist ID
     const playlistId = 'PL7-0BhrB_zNmbmI7k7uLBhKZKA9NPThXy';
+    let player;
 
-    function spin() {
-        const frame = document.getElementById('vid-frame');
-        if (!frame) return;
-
-        // Bypassing Error 153:
-        // 1. Using /embed/videoseries instead of /embed?listType
-        // 2. Generating a random index to simulate a 'fresh' user click
-        // 3. Muting by default to ensure autoplay isn't blocked by the browser
-        const randomStartIndex = Math.floor(Math.random() * 50); 
-        
-        const params = [
-            `list=${playlistId}`,
-            `autoplay=1`,
-            `index=${randomStartIndex}`,
-            `mute=1`, // Prevents the browser from blocking the "auto-spin"
-            `modestbranding=1`,
-            `rel=0`,
-            `enablejsapi=1`
-        ].join('&');
-        
-        // Using standard domain for maximum compatibility with Error 153
-        frame.src = `https://www.youtube.com/embed/videoseries?${params}`;
-        
-        document.getElementById('counter').innerText = "SPINNING THE BLOCK... (UNMUTE PLAYER)";
-        
-        setTimeout(() => {
-            document.getElementById('counter').innerText = "NOW PLAYING FROM BROWN TOWN";
-        }, 2000);
+    // This function runs automatically when the API is ready
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('vid-frame', {
+            height: '100%',
+            width: '100%',
+            playerVars: {
+                listType: 'playlist',
+                list: playlistId,
+                autoplay: 1,
+                mute: 1, // Start muted to satisfy browser autoplay policies
+                modestbranding: 1,
+                rel: 0,
+                enablejsapi: 1
+            },
+            events: {
+                'onReady': onPlayerReady
+            }
+        });
     }
 
-    // Initialize the player when the page loads
-    window.addEventListener('load', spin);
+    function onPlayerReady(event) {
+        document.getElementById('counter').innerText = "READY FOR ROULETTE";
+        // We set volume but wait for user interaction to unmute if needed
+        event.target.setVolume(50);
+    }
+
+    function spin() {
+        if (player && player.loadPlaylist) {
+            const randomStartIndex = Math.floor(Math.random() * 20);
+            
+            // Reload the playlist with a random starting point
+            player.loadPlaylist({
+                list: playlistId,
+                listType: 'playlist',
+                index: randomStartIndex,
+                startSeconds: 0,
+                suggestedQuality: 'default'
+            });
+
+            // NOW we can unmute because the user clicked the button
+            player.unMute();
+            player.setVolume(50);
+            
+            document.getElementById('counter').innerText = "SPINNING... VOLUME AT 50%";
+        }
+    }
 </script>
 
 </body>
