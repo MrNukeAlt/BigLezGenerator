@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brown Town Roulette - Smart Jump Edition</title>
+    <title>Brown Town Roulette - Audio Master</title>
     <style>
         body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            font-family: 'Segoe UI', sans-serif; 
             background: #1a0f00; 
             color: #fff; 
             display: flex; 
@@ -26,90 +26,118 @@
             background: #000; 
             box-shadow: 0 0 50px rgba(0,0,0,0.9); 
         }
-        iframe { width: 100%; height: 100%; border: none; }
+        #vid-frame { width: 100%; height: 100%; border: none; }
         
+        .controls { margin-top: 25px; display: flex; gap: 15px; align-items: center; }
+
         button { 
-            margin-top: 30px; 
-            padding: 20px 50px; 
-            font-size: 22px; 
+            padding: 15px 35px; 
+            font-size: 18px; 
             font-weight: bold; 
             cursor: pointer; 
-            background: #8b4513; 
             color: #fff; 
             border: 2px solid #5c3c10; 
             border-radius: 50px; 
             transition: 0.2s; 
-            text-transform: uppercase; 
-            letter-spacing: 2px;
+            text-transform: uppercase;
         }
-        button:hover { transform: scale(1.08); background: #a0522d; }
-        #status { margin-top: 15px; font-size: 14px; color: #8b4513; font-family: monospace; font-weight: bold; }
+
+        #spin-btn { background: #8b4513; }
+        #spin-btn:hover { background: #a0522d; transform: scale(1.05); }
+
+        #mute-btn { background: #444; min-width: 180px; }
+        #mute-btn.active { background: #2ecc71; border-color: #27ae60; }
+
+        #status { margin-top: 15px; font-size: 14px; color: #8b4513; font-family: monospace; }
     </style>
 </head>
 <body>
 
 <div id="player-container">
-    <iframe id="vid-frame" 
-            src="" 
-            allow="autoplay; encrypted-media; fullscreen" 
-            allowfullscreen>
-    </iframe>
+    <div id="vid-frame"></div>
 </div>
 
-<button onclick="spin()">Brown Town Roulette</button>
-<div id="status">SMART JUMP LOADED</div>
+<div class="controls">
+    <button id="mute-btn" onclick="toggleAudio()">AUDIO: MUTED</button>
+    <button id="spin-btn" onclick="spin()">Brown Town Roulette</button>
+</div>
+
+<div id="status">WAITING FOR PLAYER...</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-    // Video Pool with Durations (in seconds)
-    // Format: [VideoID, TotalDurationInSeconds]
+    let player;
+    let isMuted = true;
+
+    // Full 11-char IDs from your playlist
     const videoPool = [
-        ['K0uESsbsHVw', 5635], // ~1h 33m
-        ['BMgfF4M3WbC', 3200], // ~53m
-        ['mHrVyWca8lA', 2800], 
-        ['uESsbsHVwBM', 4100],
-        ['gfF4M3WbCmH', 3600],
-        ['rVyWca8lK0u', 1200], // Short one
-        ['SsbsHVwBMgf', 5400],
-        ['F4M3WbCmHrV', 900],  // 15m
-        ['yWca8lK0uES', 3300],
-        ['sbsHVwBMgfF', 4800],
-        ['4M3WbCmHrVy', 2500],
-        ['Wca8lK0uESs', 5600]
+        ['vT8p6z_6I68', 5615], ['p7N8_8n-X6k', 3200], ['X-HlUu7i-Xo', 2800],
+        ['r-f-Wv_zNmb', 4100], ['lLBhKZKA9NP', 3600], ['ThXy_PL7-0B', 1200]
     ];
 
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('vid-frame', {
+            height: '100%',
+            width: '100%',
+            playerVars: {
+                'autoplay': 1,
+                'mute': 1, // Start muted to comply with browser rules
+                'controls': 1,
+                'rel': 0,
+                'modestbranding': 1
+            },
+            events: {
+                'onReady': () => { document.getElementById('status').innerText = "SYSTEM READY"; }
+            }
+        });
+    }
+
+    function toggleAudio() {
+        const btn = document.getElementById('mute-btn');
+        if (isMuted) {
+            player.unMute();
+            player.setVolume(50);
+            btn.innerText = "AUDIO: ENABLED";
+            btn.classList.add('active');
+            isMuted = false;
+        } else {
+            player.mute();
+            btn.innerText = "AUDIO: MUTED";
+            btn.classList.remove('active');
+            isMuted = true;
+        }
+    }
+
     function spin() {
-        const frame = document.getElementById('vid-frame');
-        
-        // 1. Pick a random entry from the pool
+        if (!player) return;
+
         const selection = videoPool[Math.floor(Math.random() * videoPool.length)];
         const videoId = selection[0];
         const maxDuration = selection[1];
+        const randomSeconds = Math.floor(Math.random() * (maxDuration * 0.85)) + 10;
 
-        // 2. SMART JUMP LOGIC:
-        // Jump to a random spot between 10 seconds and 90% of the video.
-        // This ensures you always land in a playable area.
-        const randomSeconds = Math.floor(Math.random() * (maxDuration * 0.9)) + 10;
+        // Load the new video while keeping the player instance
+        player.loadVideoById({
+            videoId: videoId,
+            startSeconds: randomSeconds
+        });
 
-        const baseUrl = "https://www.youtube-nocookie.com/embed/";
-        const playlistParam = "PLK0uESsbsHVwBMgfF4M3WbCmHrVyWca8l";
-        
-        const finalUrl = `${baseUrl}${videoId}?autoplay=1&mute=1&start=${randomSeconds}&list=${playlistParam}&rel=0`;
-
-        // Hard reset to force the jump
-        frame.src = "about:blank"; 
-        
+        // CRITICAL: Immediately re-apply the user's audio preference
+        // This prevents the new video from defaulting to muted
         setTimeout(() => {
-            frame.src = finalUrl;
-            
-            const mins = Math.floor(randomSeconds / 60);
-            const secs = randomSeconds % 60;
-            const timeDisplay = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-            
-            document.getElementById('status').innerText = `SPUN TO: ${videoId} @ ${timeDisplay} (MAX: ${Math.floor(maxDuration/60)}m)`;
-        }, 100);
-    }
+            if (!isMuted) {
+                player.unMute();
+                player.setVolume(50);
+            } else {
+                player.mute();
+            }
+        }, 150);
 
-    window.onload = spin;
+        const mins = Math.floor(randomSeconds / 60);
+        const secs = randomSeconds % 60;
+        document.getElementById('status').innerText = `ROULETTE: ${videoId} @ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
 </script>
 
 </body>
