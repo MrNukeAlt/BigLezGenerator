@@ -3,94 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brown Town Roulette - Consolidated</title>
+    <title>Brown Town Roulette - Connection Fix</title>
     <style>
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: #1a0f00; 
-            color: #fff; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            min-height: 100vh; 
-            margin: 0; 
-        }
-
-        /* ONE PLAYER CONTAINER */
-        #player-container { 
-            width: 90%; 
-            max-width: 850px; 
-            aspect-ratio: 16/9; 
-            border: 3px solid #5c3c10; 
-            border-radius: 15px; 
-            overflow: hidden; 
-            background: #000; 
-            box-shadow: 0 0 50px rgba(0,0,0,0.9); 
-        }
-
-        /* THE ONLY IFRAME */
-        iframe { 
-            width: 100%; 
-            height: 100%; 
-            border: none; 
-        }
-        
-        .controls { 
-            margin-top: 25px; 
-            display: flex; 
-            gap: 15px; 
-        }
-
-        button { 
-            padding: 15px 35px; 
-            font-size: 18px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            border-radius: 50px; 
-            transition: 0.2s; 
-            text-transform: uppercase; 
-            border: 2px solid #5c3c10;
-        }
-
-        #spin-btn { background: #8b4513; color: #fff; }
-        #spin-btn:hover { background: #a0522d; transform: scale(1.05); }
-
-        #audio-btn { background: #333; color: #fff; }
-        #audio-btn.active { background: #2ecc71; border-color: #27ae60; }
-
-        #debug {
-            margin-top: 15px;
-            font-family: monospace;
-            color: #8b4513;
-            font-size: 12px;
-            font-weight: bold;
-        }
+        body { font-family: sans-serif; background: #1a0f00; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        #player-container { width: 90%; max-width: 850px; aspect-ratio: 16/9; border: 3px solid #5c3c10; border-radius: 15px; overflow: hidden; background: #000; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
+        iframe { width: 100%; height: 100%; border: none; }
+        .controls { margin-top: 25px; display: flex; gap: 15px; }
+        button { padding: 15px 35px; font-size: 18px; font-weight: bold; cursor: pointer; border-radius: 50px; border: 2px solid #5c3c10; background: #8b4513; color: #fff; transition: 0.2s; }
+        button:hover { background: #a0522d; }
+        #audio-btn { background: #333; }
+        #audio-btn.active { background: #2ecc71; }
+        #status { margin-top: 15px; font-family: monospace; color: #8b4513; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<!-- SINGLE VIDEO PLAYER -->
 <div id="player-container">
     <iframe id="vid-frame" 
             src="" 
-            allow="autoplay; encrypted-media; fullscreen" 
+            title="YouTube video player" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            referrerpolicy="strict-origin-when-cross-origin" 
             allowfullscreen>
     </iframe>
 </div>
 
-<!-- SINGLE SET OF CONTROLS -->
 <div class="controls">
     <button id="audio-btn" onclick="toggleAudio()">Audio: OFF</button>
     <button id="spin-btn" onclick="spin()">Brown Town Roulette</button>
 </div>
 
-<div id="debug">Ready for Action</div>
+<div id="status">Connection Restored</div>
 
 <script>
     let audioOn = false;
     
-    // Video Pool with Full IDs and Durations
+    // Valid Video IDs
     const videoPool = [
         ['vT8p6z_6I68', 5635],
         ['p7N8_8n-X6k', 3200],
@@ -105,14 +53,6 @@
         const btn = document.getElementById('audio-btn');
         btn.innerText = audioOn ? "Audio: ON (50%)" : "Audio: OFF";
         btn.classList.toggle('active');
-        
-        // Update current video sound if already playing
-        const frame = document.getElementById('vid-frame');
-        if (frame.src && frame.src !== "about:blank") {
-            const currentUrl = new URL(frame.src);
-            currentUrl.searchParams.set('mute', audioOn ? '0' : '1');
-            frame.src = currentUrl.toString();
-        }
     }
 
     function spin() {
@@ -121,23 +61,18 @@
         const vid = selection[0];
         const dur = selection[1];
         const jump = Math.floor(Math.random() * (dur * 0.85)) + 10;
-
-        const host = window.location.origin;
         const muteVal = audioOn ? 0 : 1;
-        
-        // Build the URL
-        const finalUrl = `https://www.youtube-nocookie.com/embed/${vid}?autoplay=1&mute=${muteVal}&start=${jump}&rel=0&modestbranding=1&origin=${host}`;
 
-        // Reset and Load
-        frame.src = "about:blank";
-        setTimeout(() => {
-            frame.src = finalUrl;
-            document.getElementById('debug').innerText = `SPUN: ${vid} @ ${Math.floor(jump/60)}m`;
-        }, 50);
+        // Force 'https' and use 'youtube-nocookie' to bypass most connection refusal errors
+        const finalUrl = `https://www.youtube-nocookie.com/embed/${vid}?autoplay=1&mute=${muteVal}&start=${jump}&rel=0&modestbranding=1`;
+
+        // Setting the src directly is more reliable than the JS API for "Refused to Connect" errors
+        frame.src = finalUrl;
+        document.getElementById('status').innerText = `Playing: ${vid}`;
     }
 
+    // Initial Spin
     window.onload = spin;
 </script>
-
 </body>
 </html>
