@@ -62,6 +62,7 @@
 <script>
     const playlistId = 'PLK0uESsbsHVwBMgfF4M3WbCmHrVyWca8l';
     let player;
+    let isJumping = false;
 
     function onYouTubeIframeAPIReady() {
         player = new YT.Player('vid-frame', {
@@ -89,34 +90,38 @@
     }
 
     function onPlayerStateChange(event) {
-        // If the video ends, it will naturally go to the next in the playlist
-        if (event.data === YT.PlayerState.ENDED) {
-            console.log("Video ended, next one coming up.");
+        // When the video starts playing (State 1), we jump to a random time
+        if (event.data === YT.PlayerState.PLAYING && isJumping) {
+            const duration = player.getDuration();
+            if (duration > 5) {
+                // Pick a random second, avoiding the very end of the video
+                const randomTime = Math.floor(Math.random() * (duration - 5));
+                player.seekTo(randomTime, true);
+            }
+            isJumping = false; // Reset the flag so it doesn't loop forever
         }
     }
 
     function spin() {
         if (player && typeof player.cuePlaylist === 'function') {
-            // Pick a random index (your playlist currently has ~20-30 videos)
+            isJumping = true; // Set flag to trigger the jump on state change
+            
             const randomStartIndex = Math.floor(Math.random() * 15);
             
-            // CUE first, then PLAY. This is more stable for local files.
             player.cuePlaylist({
                 listType: 'playlist',
                 list: playlistId,
                 index: randomStartIndex
             });
 
-            // Short delay to let the API register the cue before playback
             setTimeout(() => {
                 player.playVideo();
                 player.unMute();
                 player.setVolume(50);
-                document.getElementById('counter').innerText = "SPINNING... VOLUME 50%";
+                document.getElementById('counter').innerText = "SPINNING TO RANDOM MOMENT...";
             }, 300);
 
         } else {
-            // Emergency reload if API is unresponsive
             location.reload();
         }
     }
