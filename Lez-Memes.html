@@ -43,21 +43,9 @@
             text-transform: uppercase; 
             letter-spacing: 2px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            z-index: 10;
         }
-        button:hover { 
-            transform: scale(1.08); 
-            background: #a0522d; 
-        }
-        button:active { transform: scale(0.95); }
-
-        #counter { 
-            margin-top: 15px; 
-            font-size: 14px; 
-            color: #8b4513; 
-            font-family: monospace;
-            font-weight: bold;
-        }
+        button:hover { transform: scale(1.08); background: #a0522d; }
+        #counter { margin-top: 15px; font-size: 14px; color: #8b4513; font-family: monospace; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -67,22 +55,15 @@
 </div>
 
 <button onclick="spin()">Brown Town Roulette</button>
-<div id="counter">INITIALIZING BROWN TOWN...</div>
+<div id="counter">INITIALIZING...</div>
 
-<!-- The Official API script -->
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
     const playlistId = 'PLK0uESsbsHVwBMgfF4M3WbCmHrVyWca8l';
     let player;
 
-    // This is called automatically by the YouTube script
     function onYouTubeIframeAPIReady() {
-        console.log("YouTube API Loaded Successfully");
-        createPlayer();
-    }
-
-    function createPlayer() {
         player = new YT.Player('vid-frame', {
             height: '100%',
             width: '100%',
@@ -94,46 +75,49 @@
                 modestbranding: 1,
                 rel: 0,
                 enablejsapi: 1,
-                origin: window.location.origin // Critical for resolving "Initializing" hangs
+                origin: window.location.origin
             },
             events: {
                 'onReady': onPlayerReady,
-                'onError': onPlayerError
+                'onStateChange': onPlayerStateChange
             }
         });
     }
 
     function onPlayerReady(event) {
-        document.getElementById('counter').innerText = "BROWN TOWN READY";
-        event.target.setVolume(50);
+        document.getElementById('counter').innerText = "BROWN TOWN READY - CLICK TO START";
     }
 
-    function onPlayerError(e) {
-        console.error("YouTube Player Error:", e.data);
-        document.getElementById('counter').innerText = "CONFIG ERROR: TRY REFRESHING";
+    function onPlayerStateChange(event) {
+        // If the video ends, it will naturally go to the next in the playlist
+        if (event.data === YT.PlayerState.ENDED) {
+            console.log("Video ended, next one coming up.");
+        }
     }
 
     function spin() {
-        // If the player exists and is ready to load playlists
-        if (player && typeof player.loadPlaylist === 'function') {
-            const randomStartIndex = Math.floor(Math.random() * 40);
+        if (player && typeof player.cuePlaylist === 'function') {
+            // Pick a random index (your playlist currently has ~20-30 videos)
+            const randomStartIndex = Math.floor(Math.random() * 15);
             
-            player.loadPlaylist({
-                list: playlistId,
+            // CUE first, then PLAY. This is more stable for local files.
+            player.cuePlaylist({
                 listType: 'playlist',
+                list: playlistId,
                 index: randomStartIndex
             });
 
-            player.unMute();
-            player.setVolume(50);
-            
-            document.getElementById('counter').innerText = "SPINNING... VOLUME 50%";
-        } else {
-            // FALLBACK: If stuck on "Initializing", clicking the button forces a reload
-            document.getElementById('counter').innerText = "RECONNECTING TO YOUTUBE...";
+            // Short delay to let the API register the cue before playback
             setTimeout(() => {
-                location.reload();
-            }, 500);
+                player.playVideo();
+                player.unMute();
+                player.setVolume(50);
+                document.getElementById('counter').innerText = "SPINNING... VOLUME 50%";
+            }, 300);
+
+        } else {
+            // Emergency reload if API is unresponsive
+            location.reload();
         }
     }
 </script>
