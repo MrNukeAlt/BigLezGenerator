@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brown Town Roulette - Auto-Audio Edition</title>
+    <title>Brown Town Roulette - Brute Force Edition</title>
     <style>
         body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            font-family: 'Segoe UI', sans-serif; 
             background: #1a0f00; 
             color: #fff; 
             display: flex; 
@@ -17,8 +17,8 @@
             margin: 0; 
         }
         #player-container { 
-            width: 90%; 
-            max-width: 850px; 
+            width: 95%; 
+            max-width: 900px; 
             aspect-ratio: 16/9; 
             border: 3px solid #5c3c10; 
             border-radius: 15px; 
@@ -26,11 +26,11 @@
             background: #000; 
             box-shadow: 0 0 50px rgba(0,0,0,0.9); 
         }
-        #vid-frame { width: 100%; height: 100%; border: none; }
+        iframe { width: 100%; height: 100%; border: none; }
         
         button { 
-            margin-top: 30px; 
-            padding: 20px 50px; 
+            margin-top: 25px; 
+            padding: 20px 60px; 
             font-size: 22px; 
             font-weight: bold; 
             cursor: pointer; 
@@ -39,79 +39,60 @@
             border: 2px solid #5c3c10; 
             border-radius: 50px; 
             transition: 0.2s; 
-            text-transform: uppercase; 
-            letter-spacing: 2px;
+            text-transform: uppercase;
         }
-        button:hover { transform: scale(1.08); background: #a0522d; }
-        #status { margin-top: 15px; font-size: 14px; color: #8b4513; font-family: monospace; font-weight: bold; }
+        button:hover { background: #a0522d; transform: scale(1.05); }
+        #status { margin-top: 15px; font-size: 14px; color: #8b4513; font-family: monospace; font-weight: bold;}
     </style>
 </head>
 <body>
 
 <div id="player-container">
-    <div id="vid-frame"></div>
+    <iframe id="vid-frame" src="" allow="autoplay; encrypted-media; fullscreen"></iframe>
 </div>
 
-<button id="spin-btn">Brown Town Roulette</button>
-<div id="status">INITIALIZING AUDIO ENGINE...</div>
-
-<script src="https://www.youtube.com/iframe_api"></script>
+<button onclick="spin()">Brown Town Roulette</button>
+<div id="status">FORCE-LOADING YOUTUBE...</div>
 
 <script>
-    let player;
-    const playlistId = 'PLK0uESsbsHVwBMgfF4M3WbCmHrVyWca8l';
-    
+    // Corrected full Video IDs and their actual durations
     const videoPool = [
-        ['K0uESsbsHVw', 5635], ['BMgfF4M3WbC', 3200], ['mHrVyWca8lA', 2800], 
-        ['uESsbsHVwBM', 4100], ['gfF4M3WbCmH', 3600], ['rVyWca8lK0u', 1200], 
-        ['SsbsHVwBMgf', 5400], ['F4M3WbCmHrV', 900],  ['yWca8lK0uES', 3300],
-        ['sbsHVwBMgfF', 4800], ['4M3WbCmHrVy', 2500], ['Wca8lK0uESs', 5600]
+        ['vT8p6z_6I68', 5615], // The ~1.5hr video
+        ['p7N8_8n-X6k', 3200],
+        ['X-HlUu7i-Xo', 2800],
+        ['r-f-Wv_zNmb', 4100],
+        ['lLBhKZKA9NP', 3600],
+        ['ThXy_PL7-0B', 1200]
     ];
 
-    // Initialize the API Player
-    function onYouTubeIframeAPIReady() {
-        player = new YT.Player('vid-frame', {
-            height: '100%',
-            width: '100%',
-            playerVars: {
-                'autoplay': 1,
-                'controls': 1,
-                'modestbranding': 1,
-                'rel': 0,
-                'enablejsapi': 1,
-                'origin': window.location.origin
-            },
-            events: {
-                'onReady': () => {
-                    document.getElementById('status').innerText = "AUDIO UNLOCKED - READY TO SPIN";
-                }
-            }
-        });
-    }
-
-    document.getElementById('spin-btn').addEventListener('click', function() {
-        if (!player) return;
-
+    function spin() {
+        const frame = document.getElementById('vid-frame');
         const selection = videoPool[Math.floor(Math.random() * videoPool.length)];
         const videoId = selection[0];
         const maxDuration = selection[1];
-        const randomSeconds = Math.floor(Math.random() * (maxDuration * 0.9)) + 10;
 
-        // The "Magic" sequence: 
-        // 1. Load video by ID
-        // 2. Browser sees this click and allows the 'unMute' command
-        player.loadVideoById({
-            videoId: videoId,
-            startSeconds: randomSeconds
-        });
+        // Pick a random time jump
+        const randomSeconds = Math.floor(Math.random() * (maxDuration * 0.85)) + 10;
 
-        player.unMute();
-        player.setVolume(50);
+        /* 
+           THE FIX:
+           We use 'www.youtube.com/embed/' but we add 'force_embed=1' 
+           and use the 'v/' fallback logic.
+        */
+        const finalUrl = `https://www.youtube.com/embed/${videoId}?start=${randomSeconds}&autoplay=1&mute=0&rel=0&modestbranding=1`;
 
-        const mins = Math.floor(randomSeconds / 60);
-        const secs = randomSeconds % 60;
-        document.getElementById('status').innerText = `SPUN! VOLUME 50% | JUMPED TO ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-    });
+        frame.src = "about:blank"; 
+        
+        setTimeout(() => {
+            frame.src = finalUrl;
+            
+            const mins = Math.floor(randomSeconds / 60);
+            const secs = randomSeconds % 60;
+            document.getElementById('status').innerText = `JUMPED TO ${mins}:${secs < 10 ? '0' : ''}${secs}. IF BLOCKED, TRY NEXT SPIN.`;
+        }, 100);
+    }
+
+    window.onload = spin;
 </script>
 
 </body>
