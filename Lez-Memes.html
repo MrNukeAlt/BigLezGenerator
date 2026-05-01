@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brown Town Roulette - Randomizer Fix</title>
+    <title>Brown Town Roulette - Long Jump Edition</title>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
@@ -57,7 +57,7 @@
 </div>
 
 <button onclick="spin()">Brown Town Roulette</button>
-<div id="status">PRESS BUTTON TO RANDOMIZE</div>
+<div id="status">READY FOR CHAOS</div>
 
 <script>
     const playlistId = 'PLK0uESsbsHVwBMgfF4M3WbCmHrVyWca8l';
@@ -65,35 +65,35 @@
     function spin() {
         const frame = document.getElementById('vid-frame');
         
-        // 1. Generate a truly random index
-        // We use a high number to ensure it picks deep into the playlist
-        const randomIndex = Math.floor(Math.random() * 25);
+        // 1. Random Video: Pick a number between 0 and 40
+        const randomIndex = Math.floor(Math.random() * 41);
         
-        // 2. Generate a random start time (between 10 and 120 seconds)
-        // Starting at 10 prevents hitting the intro every time
-        const randomSeconds = Math.floor(Math.random() * 110) + 10;
+        // 2. Random Time: Pick a number between 0 and 3600 (1 Hour)
+        // If the video is shorter than the number picked, YouTube will just start it at 0:00.
+        const randomSeconds = Math.floor(Math.random() * 3600);
 
-        // 3. Generate a "Cache Buster"
-        // This forces the iframe to treat every click as a brand new request
+        // 3. Cache Buster to force a new session
         const cb = Math.random().toString(36).substring(7);
 
-        /* 
-           THE ULTIMATE FIX:
-           We combine 'videoseries' with 'shuffle=1' AND 'index'.
-           The 'index' parameter MUST be paired with 'autoplay=1' to jump properly.
-        */
-        const url = `https://www.youtube.com/embed/videoseries?list=${playlistId}&index=${randomIndex}&start=${randomSeconds}&autoplay=1&shuffle=1&mute=1&rel=0&cb=${cb}`;
+        // 4. Construct URL
+        // Added 'v=' with a blank space helps some browsers treat the playlist as fresh
+        const url = `https://www.youtube.com/embed/videoseries?list=${playlistId}&index=${randomIndex}&start=${randomSeconds}&autoplay=1&mute=1&shuffle=1&rel=0&cb=${cb}`;
 
-        // Reset the src completely to force a hard reload of the player
+        // Hard Reset the iframe
         frame.src = "about:blank"; 
         
         setTimeout(() => {
             frame.src = url;
-            document.getElementById('status').innerText = `ROULEETED TO: VIDEO #${randomIndex} | TIME: ${randomSeconds}s`;
+            
+            // Format time for the status text (MM:SS)
+            const mins = Math.floor(randomSeconds / 60);
+            const secs = randomSeconds % 60;
+            const timeDisplay = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            
+            document.getElementById('status').innerText = `ROULETTED TO: VIDEO #${randomIndex} | TIME: ${timeDisplay}`;
         }, 50);
     }
 
-    // Initial load
     window.onload = spin;
 </script>
 
