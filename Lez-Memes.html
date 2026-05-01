@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brown Town Roulette - Smart Jump Edition</title>
+    <title>Big Lez Roulette - Direct Shuffle</title>
     <style>
         body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            font-family: 'Segoe UI', sans-serif; 
             background: #1a0f00; 
             color: #fff; 
             display: flex; 
@@ -16,100 +16,60 @@
             height: 100vh; 
             margin: 0; 
         }
-        #player-container { 
-            width: 90%; 
-            max-width: 850px; 
-            aspect-ratio: 16/9; 
-            border: 3px solid #5c3c10; 
-            border-radius: 15px; 
-            overflow: hidden; 
-            background: #000; 
-            box-shadow: 0 0 50px rgba(0,0,0,0.9); 
+
+        .card {
+            background: rgba(40, 25, 0, 0.8);
+            padding: 50px;
+            border: 4px solid #5c3c10;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(0,0,0,0.8);
         }
-        iframe { width: 100%; height: 100%; border: none; }
-        
-        button { 
-            margin-top: 30px; 
-            padding: 20px 50px; 
-            font-size: 22px; 
-            font-weight: bold; 
+
+        h1 { font-size: 32px; color: #ffaa00; margin-bottom: 5px; text-transform: uppercase; }
+        p { color: #d2b48c; margin-bottom: 35px; }
+
+        .spin-btn { 
+            padding: 25px 60px; 
+            font-size: 26px; 
+            font-weight: 900; 
             cursor: pointer; 
-            background: #8b4513; 
-            color: #fff; 
-            border: 2px solid #5c3c10; 
-            border-radius: 50px; 
+            border-radius: 60px; 
+            border: none; 
+            background: linear-gradient(to bottom, #8b4513, #5c3c10); 
+            color: white; 
             transition: 0.2s; 
-            text-transform: uppercase; 
-            letter-spacing: 2px;
+            text-transform: uppercase;
+            box-shadow: 0 10px 0 #3d280a;
         }
-        button:hover { transform: scale(1.08); background: #a0522d; }
-        #status { margin-top: 15px; font-size: 14px; color: #8b4513; font-family: monospace; font-weight: bold; }
+
+        .spin-btn:hover { transform: translateY(2px); box-shadow: 0 8px 0 #3d280a; }
+        .spin-btn:active { transform: translateY(8px); box-shadow: 0 2px 0 #3d280a; }
     </style>
 </head>
 <body>
 
-<div id="player-container">
-    <iframe id="vid-frame" 
-            src="" 
-            allow="autoplay; encrypted-media; fullscreen" 
-            allowfullscreen>
-    </iframe>
+<div class="card">
+    <h1>Brown Town Roulette</h1>
+    <p>Bypassing Errors. Shuffling Playlist...</p>
+
+    <button class="spin-btn" onclick="launchShuffle()">Spin the Roulette</button>
 </div>
 
-<button onclick="spin()">Brown Town Roulette</button>
-<div id="status">SMART JUMP LOADED</div>
-
 <script>
-    // Video Pool with Durations (in seconds)
-    // Format: [VideoID, TotalDurationInSeconds]
-    const videoPool = [
-        ['K0uESsbsHVw', 5635], // ~1h 33m
-        ['BMgfF4M3WbC', 3200], // ~53m
-        ['mHrVyWca8lA', 2800], 
-        ['uESsbsHVwBM', 4100],
-        ['gfF4M3WbCmH', 3600],
-        ['rVyWca8lK0u', 1200], // Short one
-        ['SsbsHVwBMgf', 5400],
-        ['F4M3WbCmHrV', 900],  // 15m
-        ['yWca8lK0uES', 3300],
-        ['sbsHVwBMgfF', 4800],
-        ['4M3WbCmHrVy', 2500],
-        ['Wca8lK0uESs', 5600]
-    ];
-
-    function spin() {
-        const frame = document.getElementById('vid-frame');
+    function launchShuffle() {
+        // Your Playlist ID
+        const pid = "PLK0uESsbsHVwBMgfF4M3WbCmHrVyWca8l";
         
-        // 1. Pick a random entry from the pool
-        const selection = videoPool[Math.floor(Math.random() * videoPool.length)];
-        const videoId = selection[0];
-        const maxDuration = selection[1];
+        /* 
+           Using a randomizer that supports query parameters:
+           - pid: The playlist to load
+           - autostart: Starts the first random video immediately
+        */
+        const url = `https://youtube-playlist-randomizer.bitbucket.io/?pid=${pid}&autostart=true`;
 
-        // 2. SMART JUMP LOGIC:
-        // Jump to a random spot between 10 seconds and 90% of the video.
-        // This ensures you always land in a playable area.
-        const randomSeconds = Math.floor(Math.random() * (maxDuration * 0.9)) + 10;
-
-        const baseUrl = "https://www.youtube-nocookie.com/embed/";
-        const playlistParam = "PLK0uESsbsHVwBMgfF4M3WbCmHrVyWca8l";
-        
-        const finalUrl = `${baseUrl}${videoId}?autoplay=1&mute=1&start=${randomSeconds}&list=${playlistParam}&rel=0`;
-
-        // Hard reset to force the jump
-        frame.src = "about:blank"; 
-        
-        setTimeout(() => {
-            frame.src = finalUrl;
-            
-            const mins = Math.floor(randomSeconds / 60);
-            const secs = randomSeconds % 60;
-            const timeDisplay = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-            
-            document.getElementById('status').innerText = `SPUN TO: ${videoId} @ ${timeDisplay} (MAX: ${Math.floor(maxDuration/60)}m)`;
-        }, 100);
+        window.open(url, '_blank');
     }
-
-    window.onload = spin;
 </script>
 
 </body>
