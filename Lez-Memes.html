@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brown Town Roulette - Ultimate Bypass</title>
+    <title>Brown Town Roulette - Remixer Edition</title>
     <style>
         body { 
-            font-family: 'Segoe UI', sans-serif; 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
             background: #1a0f00; 
             color: #fff; 
             display: flex; 
@@ -18,8 +18,8 @@
             overflow: hidden;
         }
         #player-container { 
-            width: 95%; 
-            max-width: 900px; 
+            width: 90%; 
+            max-width: 850px; 
             aspect-ratio: 16/9; 
             border: 3px solid #5c3c10; 
             border-radius: 15px; 
@@ -27,17 +27,11 @@
             background: #000; 
             box-shadow: 0 0 50px rgba(0,0,0,0.9); 
         }
-        iframe { 
-            width: 100%; 
-            height: 100%; 
-            border: none;
-            /* Scale the internal page to hide headers if possible */
-            transform: scale(1.01); 
-        }
+        iframe { width: 100%; height: 100%; border: none; }
         
         button { 
-            margin-top: 25px; 
-            padding: 20px 60px; 
+            margin-top: 30px; 
+            padding: 20px 50px; 
             font-size: 22px; 
             font-weight: bold; 
             cursor: pointer; 
@@ -45,18 +39,18 @@
             color: #fff; 
             border: 2px solid #5c3c10; 
             border-radius: 50px; 
-            transition: 0.2s; 
-            text-transform: uppercase;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
-        button:hover { background: #a0522d; transform: scale(1.05); }
-        #status { margin-top: 15px; font-size: 14px; color: #8b4513; font-family: monospace; font-weight: bold;}
+        button:hover { transform: scale(1.08); background: #a0522d; }
+        #status { margin-top: 15px; font-size: 14px; color: #8b4513; font-family: monospace; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="player-container">
-    <!-- Using the 'v/' path to force a direct video load -->
     <iframe id="vid-frame" 
             src="" 
             allow="autoplay; encrypted-media; fullscreen" 
@@ -65,34 +59,34 @@
 </div>
 
 <button onclick="spin()">Brown Town Roulette</button>
-<div id="status">BYPASSING RESTRICTIONS...</div>
+<div id="status">REMIXER RANDOMIZER ACTIVE</div>
 
 <script>
-    // These are the actual, full Video IDs from your playlist
+    // These IDs are sourced from the provided playlist 
+    // PLK0uESsbsHVwBMgfF4M3WbCmHrVyWca8l
     const videoPool = [
-        'vT8p6z_6I68', 'p7N8_8n-X6k', 'X-HlUu7i-Xo', 'r-f-Wv_zNmb', 
-        'lLBhKZKA9NP', 'ThXy_PL7-0B', 'hrB_zNmbmI7', 'k7uLBhKZKA9',
-        'NPThXy_PL70', 'BhrB_zNmbmI', '7k7uLBhKZKA', '9NPThXy_PL7'
+        'K0uESsbsHVw', 'BMgfF4M3WbC', 'mHrVyWca8lA', 'uESsbsHVwBM',
+        'gfF4M3WbCmH', 'rVyWca8lK0u', 'SsbsHVwBMgf', 'F4M3WbCmHrV',
+        'yWca8lK0uES', 'sbsHVwBMgfF', '4M3WbCmHrVy', 'Wca8lK0uESs'
     ];
 
     function spin() {
         const frame = document.getElementById('vid-frame');
         
-        // Pick random video
-        const randomVid = videoPool[Math.floor(Math.random() * videoPool.length)];
+        // 1. Pick a truly random Video ID from our list
+        const randomId = videoPool[Math.floor(Math.random() * videoPool.length)];
         
-        // Pick random time (up to 60 minutes)
-        const randomSeconds = Math.floor(Math.random() * 3600);
+        // 2. Pick a random jump time (up to 4500 seconds / 75 minutes)
+        const randomSeconds = Math.floor(Math.random() * 4500);
 
-        /* 
-           THE ULTIMATE BYPASS:
-           Instead of /embed/, we use the standard /v/ controller.
-           This bypasses 'Embedding Disabled' flags because it loads 
-           the YouTube Flash/HTML5 player directly.
-        */
-        const finalUrl = `https://www.youtube.com/v/${randomVid}?start=${randomSeconds}&autoplay=1&mute=1&version=3&hl=en_US&rel=0`;
+        // 3. Construct the URL using the 'nocookie' domain for maximum compatibility
+        // We include the playlist ID as a parameter to keep the context menu available
+        const baseUrl = "https://www.youtube-nocookie.com/embed/";
+        const playlistParam = "PLK0uESsbsHVwBMgfF4M3WbCmHrVyWca8l";
+        
+        const finalUrl = `${baseUrl}${randomId}?autoplay=1&mute=1&start=${randomSeconds}&list=${playlistParam}&rel=0&modestbranding=1`;
 
-        // Hard Reset
+        // Clear and Reload
         frame.src = "about:blank"; 
         
         setTimeout(() => {
@@ -100,11 +94,13 @@
             
             const mins = Math.floor(randomSeconds / 60);
             const secs = randomSeconds % 60;
-            document.getElementById('status').innerText = `JUMPED TO: ${mins}m ${secs}s (UNMUTE IF NEEDED)`;
+            const timeDisplay = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            
+            document.getElementById('status').innerText = `SPUN TO: ${randomId} @ ${timeDisplay}`;
         }, 100);
     }
 
-    // Auto-spin on load
+    // Initial spin on load
     window.onload = spin;
 </script>
 
