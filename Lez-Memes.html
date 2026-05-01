@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brown Town Roulette - Debug Edition</title>
+    <title>Brown Town Roulette - Final Fix</title>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
@@ -13,9 +13,8 @@
             flex-direction: column; 
             align-items: center; 
             justify-content: center; 
-            min-height: 100vh; 
+            height: 100vh; 
             margin: 0; 
-            overflow-x: hidden;
         }
         #player-container { 
             width: 90%; 
@@ -27,12 +26,12 @@
             background: #000; 
             box-shadow: 0 0 50px rgba(0,0,0,0.9); 
         }
-        #vid-frame { width: 100%; height: 100%; border: none; }
+        iframe { width: 100%; height: 100%; border: none; }
         
         button { 
-            margin: 20px 0; 
-            padding: 15px 40px; 
-            font-size: 20px; 
+            margin-top: 30px; 
+            padding: 20px 50px; 
+            font-size: 22px; 
             font-weight: bold; 
             cursor: pointer; 
             background: #8b4513; 
@@ -41,143 +40,54 @@
             border-radius: 50px; 
             transition: 0.2s; 
             text-transform: uppercase; 
+            letter-spacing: 2px;
         }
-        button:hover { transform: scale(1.05); background: #a0522d; }
-
-        /* DEBUG CONSOLE STYLES */
-        #debug-console {
-            width: 90%;
-            max-width: 850px;
-            height: 150px;
-            background: #000;
-            border: 1px solid #333;
-            border-radius: 8px;
-            font-family: 'Consolas', monospace;
-            font-size: 12px;
-            color: #0f0;
-            padding: 10px;
-            overflow-y: scroll;
-            box-shadow: inset 0 0 10px #000;
-        }
-        .log-warn { color: #ffa500; }
-        .log-err { color: #ff4444; font-weight: bold; }
-        .log-info { color: #00bfff; }
+        button:hover { transform: scale(1.08); background: #a0522d; }
+        #status { margin-top: 15px; font-size: 14px; color: #8b4513; font-family: monospace; }
     </style>
 </head>
 <body>
 
 <div id="player-container">
-    <div id="vid-frame"></div>
+    <iframe id="vid-frame" 
+            src="" 
+            allow="autoplay; encrypted-media; fullscreen" 
+            allowfullscreen>
+    </iframe>
 </div>
 
 <button onclick="spin()">Brown Town Roulette</button>
-
-<div id="debug-console" id="log-container">
-    <div class="log-info">> System Initialized. Waiting for API...</div>
-</div>
-
-<script src="https://www.youtube.com/iframe_api"></script>
+<div id="status">LOCAL MODE ACTIVE</div>
 
 <script>
     const playlistId = 'PLK0uESsbsHVwBMgfF4M3WbCmHrVyWca8l';
-    let player;
-    let isJumping = false;
-
-    // CUSTOM LOGGING FUNCTION
-    function logger(msg, type = '') {
-        const consoleEl = document.getElementById('debug-console');
-        const entry = document.createElement('div');
-        if(type) entry.className = `log-${type}`;
-        
-        const timestamp = new Date().toLocaleTimeString().split(' ')[0];
-        entry.innerText = `[${timestamp}] > ${msg}`;
-        
-        consoleEl.appendChild(entry);
-        consoleEl.scrollTop = consoleEl.scrollHeight; // Auto-scroll
-        console.log(`[DEBUG] ${msg}`);
-    }
-
-    // Capture global errors
-    window.onerror = (msg, url, line) => logger(`Global Error: ${msg} on line ${line}`, 'err');
-
-    function onYouTubeIframeAPIReady() {
-        logger("YouTube API Script Loaded", "info");
-        createPlayer();
-    }
-
-    function createPlayer() {
-        logger("Creating Player Instance...");
-        player = new YT.Player('vid-frame', {
-            height: '100%',
-            width: '100%',
-            playerVars: {
-                listType: 'playlist',
-                list: playlistId,
-                autoplay: 1,
-                mute: 1,
-                enablejsapi: 1,
-                origin: window.location.origin || '*'
-            },
-            events: {
-                'onReady': onPlayerReady,
-                'onStateChange': onPlayerStateChange,
-                'onError': onPlayerError
-            }
-        });
-    }
-
-    function onPlayerReady(event) {
-        logger("Player Ready. Initializing Playlist...", "info");
-        event.target.setVolume(50);
-    }
-
-    function onPlayerStateChange(event) {
-        const states = { '-1': 'Unstarted', '0': 'Ended', '1': 'Playing', '2': 'Paused', '3': 'Buffering', '5': 'Cued' };
-        logger(`State Change: ${states[event.data] || event.data}`);
-
-        if (event.data === YT.PlayerState.PLAYING && isJumping) {
-            const duration = player.getDuration();
-            logger(`Video Metadata Loaded. Duration: ${duration}s`, "info");
-            
-            if (duration > 5) {
-                const randomTime = Math.floor(Math.random() * (duration - 5));
-                logger(`Jumping to: ${randomTime}s`, "warn");
-                player.seekTo(randomTime, true);
-            }
-            isJumping = false;
-        }
-    }
-
-    function onPlayerError(e) {
-        const errors = { 2: 'Invalid Parameter', 5: 'HTML5 Error', 100: 'Not Found', 101: 'Embed Restricted', 150: 'Embed Restricted' };
-        logger(`YT Player Error: ${errors[e.data] || e.data}`, "err");
-    }
 
     function spin() {
-        logger("Roulette Triggered!");
-        if (player && typeof player.cuePlaylist === 'function') {
-            isJumping = true;
-            const randomStartIndex = Math.floor(Math.random() * 15);
-            
-            logger(`Cueing Playlist Index: ${randomStartIndex}`);
-            player.cuePlaylist({
-                listType: 'playlist',
-                list: playlistId,
-                index: randomStartIndex
-            });
+        const frame = document.getElementById('vid-frame');
+        
+        // 1. Generate a random video index (0 to 15)
+        const randomIndex = Math.floor(Math.random() * 15);
+        
+        // 2. Generate a random start time (0 to 60 seconds)
+        // Since we can't get the exact duration without the API, 
+        // we pick a safe range to ensure we don't skip the whole video.
+        const randomSeconds = Math.floor(Math.random() * 60);
 
-            setTimeout(() => {
-                logger("Execution: Play/Unmute/Volume(50)");
-                player.playVideo();
-                player.unMute();
-                player.setVolume(50);
-            }, 500);
+        /* 
+           THE URL ATTACK:
+           We use the 'videoseries' endpoint which is more stable for local files.
+           - index: picks the video
+           - start: jumps to the second
+           - autoplay: starts it
+        */
+        const url = `https://www.youtube.com/embed/videoseries?list=${playlistId}&index=${randomIndex}&start=${randomSeconds}&autoplay=1&rel=0&modestbranding=1&mute=1`;
 
-        } else {
-            logger("API Object missing. Forcing Refresh...", "err");
-            setTimeout(() => location.reload(), 1000);
-        }
+        frame.src = url;
+        document.getElementById('status').innerText = `JUMPED TO VIDEO #${randomIndex} @ ${randomSeconds}s (UNMUTE MANUALLY)`;
     }
+
+    // Load first spin on page load
+    window.onload = spin;
 </script>
 
 </body>
