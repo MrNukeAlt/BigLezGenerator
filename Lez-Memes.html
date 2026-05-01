@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brown Town Roulette - Smart Audio Edition</title>
+    <title>Brown Town Roulette - Audio Master</title>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
@@ -28,11 +28,7 @@
         }
         #vid-frame { width: 100%; height: 100%; border: none; }
         
-        .controls {
-            margin-top: 30px;
-            display: flex;
-            gap: 20px;
-        }
+        .controls { margin-top: 30px; display: flex; gap: 15px; }
 
         button { 
             padding: 20px 40px; 
@@ -42,26 +38,15 @@
             border-radius: 50px; 
             transition: 0.2s; 
             text-transform: uppercase; 
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             border: 2px solid #5c3c10;
         }
 
-        #spin-btn { 
-            background: #8b4513; 
-            color: #fff;
-            font-size: 22px;
-        }
+        #spin-btn { background: #8b4513; color: #fff; font-size: 22px; }
         #spin-btn:hover { transform: scale(1.08); background: #a0522d; }
 
-        #audio-toggle {
-            background: #333;
-            color: #bbb;
-        }
-        #audio-toggle.enabled {
-            background: #2ecc71;
-            color: #fff;
-            border-color: #27ae60;
-        }
+        #audio-toggle { background: #333; color: #fff; }
+        #audio-toggle.on { background: #2ecc71; border-color: #27ae60; }
 
         #status { margin-top: 15px; font-size: 14px; color: #8b4513; font-family: monospace; font-weight: bold; }
     </style>
@@ -73,19 +58,18 @@
 </div>
 
 <div class="controls">
-    <button id="audio-toggle" onclick="toggleAudioMaster()">Audio: Off</button>
-    <button id="spin-btn">Brown Town Roulette</button>
+    <button id="audio-toggle" onclick="toggleAudio()">Audio: OFF</button>
+    <button id="spin-btn" onclick="spin()">Brown Town Roulette</button>
 </div>
 
-<div id="status">INITIALIZING AUDIO ENGINE...</div>
+<div id="status">INITIALIZING PLAYER...</div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
     let player;
-    let audioMasterEnabled = false;
-    const playlistId = 'PLK0uESsbsHVwBMgfF4M3WbCmHrVyWca8l';
-    
+    let audioEnabled = false;
+
     const videoPool = [
         ['K0uESsbsHVw', 5635], ['BMgfF4M3WbC', 3200], ['mHrVyWca8lA', 2800], 
         ['uESsbsHVwBM', 4100], ['gfF4M3WbCmH', 3600], ['rVyWca8lK0u', 1200], 
@@ -102,34 +86,35 @@
                 'controls': 1,
                 'modestbranding': 1,
                 'rel': 0,
-                'enablejsapi': 1,
-                'origin': window.location.origin
+                'enablejsapi': 1
             },
             events: {
-                'onReady': () => {
-                    document.getElementById('status').innerText = "SYSTEM READY - CONFIGURE AUDIO";
-                }
+                'onReady': onPlayerReady
             }
         });
     }
 
-    function toggleAudioMaster() {
+    function onPlayerReady(event) {
+        document.getElementById('status').innerText = "PLAYER READY - TOGGLE AUDIO TO START";
+    }
+
+    function toggleAudio() {
         const btn = document.getElementById('audio-toggle');
-        audioMasterEnabled = !audioMasterEnabled;
+        audioEnabled = !audioEnabled;
         
-        if (audioMasterEnabled) {
-            btn.innerText = "Audio: On (50%)";
-            btn.classList.add('enabled');
+        if (audioEnabled) {
+            btn.innerText = "Audio: ON (50%)";
+            btn.classList.add('on');
             player.unMute();
             player.setVolume(50);
         } else {
-            btn.innerText = "Audio: Off";
-            btn.classList.remove('enabled');
+            btn.innerText = "Audio: OFF";
+            btn.classList.remove('on');
             player.mute();
         }
     }
 
-    document.getElementById('spin-btn').addEventListener('click', function() {
+    function spin() {
         if (!player) return;
 
         const selection = videoPool[Math.floor(Math.random() * videoPool.length)];
@@ -142,8 +127,8 @@
             startSeconds: randomSeconds
         });
 
-        // Ensure audio settings persist after the new video loads
-        if (audioMasterEnabled) {
+        // Re-apply audio preference to new video load
+        if (audioEnabled) {
             player.unMute();
             player.setVolume(50);
         } else {
@@ -152,9 +137,9 @@
 
         const mins = Math.floor(randomSeconds / 60);
         const secs = randomSeconds % 60;
-        const audioStatus = audioMasterEnabled ? "UNMUTED (50%)" : "MUTED";
-        document.getElementById('status').innerText = `SPUN! ${audioStatus} | JUMPED TO ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-    });
+        const timeDisplay = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        document.getElementById('status').innerText = `SPUN TO: ${videoId} @ ${timeDisplay} | VOLUME: ${audioEnabled ? '50%' : '0%'}`;
+    }
 </script>
 
 </body>
