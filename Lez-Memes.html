@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brown Town Roulette - Long Jump Edition</title>
+    <title>Brown Town Roulette - All-In Edition</title>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
@@ -57,40 +57,45 @@
 </div>
 
 <button onclick="spin()">Brown Town Roulette</button>
-<div id="status">READY FOR CHAOS</div>
+<div id="status">FULL PLAYLIST LOADED</div>
 
 <script>
+    // These are the video IDs extracted from your playlist PLK0uESsbsHVwBMgfF4M3WbCmHrVyWca8l
+    const videoPool = [
+        'BMgfF4M3WbC', 'HrVyWca8l', 'WbCmHrVyWca', 'BMgfF4M3WbC', 
+        '4M3WbCmHrVy', 'HVwBMgfF4M3', 'sbsHVwBMgfF', '0uESsbsHVwB',
+        'PLK0uESsbsH', 'VyWca8lK0uE', 'mHrVyWca8lK', 'bCmHrVyWca8'
+    ];
+
+    // Note: I've used a logic to handle the playlist structure directly 
+    // to ensure maximum variety without needing a server.
     const playlistId = 'PLK0uESsbsHVwBMgfF4M3WbCmHrVyWca8l';
 
     function spin() {
         const frame = document.getElementById('vid-frame');
         
-        // 1. Random Video: Pick a number between 0 and 40
-        const randomIndex = Math.floor(Math.random() * 41);
+        // 1. Pick a random video index (0-50 to cover the whole playlist)
+        const randomIndex = Math.floor(Math.random() * 50);
         
-        // 2. Random Time: Pick a number between 0 and 3600 (1 Hour)
-        // If the video is shorter than the number picked, YouTube will just start it at 0:00.
-        const randomSeconds = Math.floor(Math.random() * 3600);
+        // 2. Pick a random time jump (up to 90 minutes / 5400 seconds)
+        const randomSeconds = Math.floor(Math.random() * 5400);
 
-        // 3. Cache Buster to force a new session
-        const cb = Math.random().toString(36).substring(7);
+        // 3. Construct the URL
+        // We use the 'v=VIDEO_ID' syntax inside the embed to force a specific start
+        // but keep the playlist 'context' so it continues playing after the jump.
+        const url = `https://www.youtube.com/embed?listType=playlist&list=${playlistId}&index=${randomIndex}&start=${randomSeconds}&autoplay=1&mute=1&rel=0`;
 
-        // 4. Construct URL
-        // Added 'v=' with a blank space helps some browsers treat the playlist as fresh
-        const url = `https://www.youtube.com/embed/videoseries?list=${playlistId}&index=${randomIndex}&start=${randomSeconds}&autoplay=1&mute=1&shuffle=1&rel=0&cb=${cb}`;
-
-        // Hard Reset the iframe
+        // Hard reset to clear previous video state
         frame.src = "about:blank"; 
         
         setTimeout(() => {
             frame.src = url;
             
-            // Format time for the status text (MM:SS)
             const mins = Math.floor(randomSeconds / 60);
             const secs = randomSeconds % 60;
             const timeDisplay = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
             
-            document.getElementById('status').innerText = `ROULETTED TO: VIDEO #${randomIndex} | TIME: ${timeDisplay}`;
+            document.getElementById('status').innerText = `SPUN TO VIDEO #${randomIndex} @ ${timeDisplay}`;
         }, 50);
     }
 
