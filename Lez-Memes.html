@@ -58,8 +58,7 @@
 
 <script>
     function launchShuffle() {
-        // Full list of IDs from playlist_PLyPYyy0i9qXBcrLGa2_m-tI7Ie2xxUzeB_videos (1).txt
-        // Format: ["VideoID", DurationInSeconds]
+        // Full list of IDs from your playlist file
         const episodes = [
             ["uuc9frxacfE", 341], ["U6Hkc9VGiXQ", 412], ["v4e-LLFx0Vg", 275], 
             ["gokzLZ6lBjY", 305], ["XfkuFyZ8Sqg", 398], ["N1n0r3UnpeY", 322], 
@@ -77,23 +76,23 @@
             ["rQUOx9i537s", 358], ["fG-qwtbyKqA", 338], ["CW79tNmMt8w", 308], 
             ["J0deOplIWwA", 392], ["heQ6nIiFBZM", 322], ["vthmLNBfpaU", 282], 
             ["UOQtmJrwI60", 428]
-        ];[cite: 2]
+        ];
 
-        // Pick a random episode from the array
-        const randomIndex = Math.floor(Math.random() * episodes.length);[cite: 1]
-        const videoId = episodes[randomIndex][0];[cite: 1]
-        const maxDuration = episodes[randomIndex][1];[cite: 1]
+        // Pick a random episode
+        const randomIndex = Math.floor(Math.random() * episodes.length);
+        const videoId = episodes[randomIndex][0];
+        const maxDuration = episodes[randomIndex][1];
 
-        // Pick a random second within the video's timeframe (leaving a 15s buffer)
-        const randomSeconds = Math.floor(Math.random() * (maxDuration - 15));[cite: 1]
+        // Pick a random second (leaving a 15s buffer at the end)
+        const randomSeconds = Math.floor(Math.random() * (maxDuration - 15));
 
-        // Construct the direct YouTube URL with the time parameter 't'
-        const finalUrl = "https://www.youtube.com/watch?v=" + videoId + "&t=" + randomSeconds + "s";[cite: 1]
+        // Construct URL
+        const finalUrl = "https://www.youtube.com/watch?v=" + videoId + "&t=" + randomSeconds + "s";
 
-        // Attempt to open in a new tab
-        const newWindow = window.open(finalUrl, '_blank');[cite: 1]
+        // Open in new tab
+        const newWindow = window.open(finalUrl, '_blank');
         
-        // If the window was blocked by a pop-up blocker, redirect the current page instead
+        // Fallback if popup is blocked
         if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') { 
             window.location.href = finalUrl; 
         }
