@@ -51,24 +51,45 @@
 
 <div class="card">
     <h1>Brown Town Roulette</h1>
-    <p>Bypassing Errors. Shuffling Playlist...</p>
+    <p>Direct YouTube Injection Engaged.</p>
 
     <button class="spin-btn" onclick="launchShuffle()">Spin the Roulette</button>
 </div>
 
 <script>
     function launchShuffle() {
-        // Your Playlist ID
-        const pid = "PLxnrwBuY6KRH4DpMqpBT32T0cbIi89N-d";
-        
-        /* 
-           Using a randomizer that supports query parameters:
-           - pid: The playlist to load
-           - autostart: Starts the first random video immediately
-        */
-        const url = `https://youtube-playlist-randomizer.bitbucket.io/?pid=${pid}&autostart=true`;
+        // Data format: ["VideoID", DurationInSeconds]
+        const episodes = [
+            ["uuc9frxacfE", 350], ["U6Hkc9VGiXQ", 420], ["v4e-LLFx0Vg", 280], 
+            ["gokzLZ6lBjY", 310], ["XfkuFyZ8Sqg", 400], ["N1n0r3UnpeY", 330], 
+            ["p48-G4KmRXk", 290], ["ilnYCCvAqsM", 450], ["pt8JERs8-4A", 315], 
+            ["p55x-5bQ48I", 380], ["O7hjr7Y_wiI", 260], ["T2IrtX0QdIE", 500], 
+            ["a6zCVZfrneY", 340], ["pQ54y_UrpPo", 275], ["9NE2DkSBQig", 310], 
+            ["BiFJDQkmXMA", 410], ["E7AFfJFJhtE", 390], ["FhykvrPZwA4", 320], 
+            ["csqCNI_nSVg", 365], ["1opOrbF3Fkw", 405], ["9tb73W90YX4", 285], 
+            ["PMv42I1hiqA", 335], ["T9w8JDfUZ64", 295], ["GEJ3g57GeXU", 355], 
+            ["3PJhl1EwRDg", 375], ["4Nm4edikHJw", 315], ["Gs30P0oQb7M", 440], 
+            ["ZydHB78zNvA", 325], ["f2QwmwoPlIs", 300], ["Y9LpRDvuYZ8", 345], 
+            ["SUN-_oHH-aM", 385], ["W2FO9LpXcAk", 270], ["1_32ARA_B4E", 330], 
+            ["uExyiKvSf_o", 315], ["7WwLT32_VAk", 290], ["SUgyIEUFuXw", 410], 
+            ["wIsJkjImpdI", 350], ["3CGHWYDVR9A", 320], ["jusOcTYoHXE", 280], 
+            ["rQUOx9i537s", 360], ["fG-qwtbyKqA", 340], ["CW79tNmMt8w", 310], 
+            ["J0deOplIWwA", 395], ["heQ6nIiFBZM", 325], ["vthmLNBfpaU", 285], 
+            ["UOQtmJrwI60", 430]
+        ];[cite: 2]
 
-        window.open(url, '_blank');
+        // 1. Pick a random episode from the list
+        const randomEpisode = episodes[Math.floor(Math.random() * episodes.length)];[cite: 1]
+        const videoId = randomEpisode[0];[cite: 1]
+        const duration = randomEpisode[1];[cite: 1]
+
+        // 2. Pick a random second (buffer of 15s at the end)
+        const randomTime = Math.floor(Math.random() * (duration - 15));[cite: 1]
+
+        // 3. Construct direct YouTube URL with 't' parameter[cite: 1]
+        const url = `https://www.youtube.com/watch?v=${videoId}&t=${randomTime}s`;[cite: 1]
+
+        window.open(url, '_blank');[cite: 1]
     }
 </script>
 
