@@ -78,21 +78,21 @@
             ["UOQtmJrwI60", 428]
         ];
 
-        // 1. Pick a random episode[cite: 1]
+        // Pick a random episode
         const randomIndex = Math.floor(Math.random() * episodes.length);
         const videoId = episodes[randomIndex][0];
         const maxDuration = episodes[randomIndex][1];
 
-        // 2. Pick a random second (leaving a 15s buffer)[cite: 1]
+        // Pick a random second within that video
         const randomSeconds = Math.floor(Math.random() * (maxDuration - 15));
 
-        // 3. Construct URL with autoplay and mute parameters[cite: 1]
-        const finalUrl = "https://www.youtube.com/watch?v=" + videoId + "&t=" + randomSeconds + "s&autoplay=1&mute=1";
+        // Construct the direct YouTube link[cite: 1]
+        const finalUrl = "https://www.youtube.com/watch?v=" + videoId + "&t=" + randomSeconds + "s";
 
-        // 4. Attempt to open in a new tab[cite: 1]
+        // Open in new tab[cite: 1]
         const newWindow = window.open(finalUrl, '_blank');
         
-        // 5. Fallback: If browser blocks the popup, redirect current page[cite: 1]
+        // Safety fallback if the browser blocks popups[cite: 1]
         if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') { 
             window.location.href = finalUrl; 
         }
