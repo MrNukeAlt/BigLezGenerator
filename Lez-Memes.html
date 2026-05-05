@@ -78,21 +78,21 @@
             ["UOQtmJrwI60", 428]
         ];
 
-        // Pick a random episode from the list[cite: 2]
+        // Pick a random episode from the list
         const randomIndex = Math.floor(Math.random() * episodes.length);
         const videoId = episodes[randomIndex][0];
         const maxDuration = episodes[randomIndex][1];
 
-        // Pick a random second within the video's timeframe[cite: 1]
+        // Pick a random second within the video's timeframe (minus 15s buffer)
         const randomSeconds = Math.floor(Math.random() * (maxDuration - 15));
 
-        // Construct the direct YouTube link with the time parameter[cite: 1]
+        // Construct the direct YouTube link with the time parameter 't'
         const finalUrl = "https://www.youtube.com/watch?v=" + videoId + "&t=" + randomSeconds + "s";
 
-        // Open in new tab[cite: 1]
+        // Attempt to open in a new tab
         const newWindow = window.open(finalUrl, '_blank');
         
-        // Fallback: If browser blocks the popup, use the current tab[cite: 1]
+        // Fallback: If browser blocks the popup, redirect current page instead
         if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') { 
             window.location.href = finalUrl; 
         }
