@@ -58,7 +58,7 @@
 
 <script>
     function launchShuffle() {
-        // Full list of IDs from your playlist file
+        // Full list of IDs from playlist_PLyPYyy0i9qXBcrLGa2_m-tI7Ie2xxUzeB_videos (1).txt
         const episodes = [
             ["uuc9frxacfE", 341], ["U6Hkc9VGiXQ", 412], ["v4e-LLFx0Vg", 275], 
             ["gokzLZ6lBjY", 305], ["XfkuFyZ8Sqg", 398], ["N1n0r3UnpeY", 322], 
@@ -78,21 +78,21 @@
             ["UOQtmJrwI60", 428]
         ];
 
-        // Pick a random episode
+        // Pick a random episode from the list[cite: 2]
         const randomIndex = Math.floor(Math.random() * episodes.length);
         const videoId = episodes[randomIndex][0];
         const maxDuration = episodes[randomIndex][1];
 
-        // Pick a random second (leaving a 15s buffer at the end)
+        // Pick a random second within the video's timeframe[cite: 1]
         const randomSeconds = Math.floor(Math.random() * (maxDuration - 15));
 
-        // Construct URL
+        // Construct the direct YouTube link with the time parameter[cite: 1]
         const finalUrl = "https://www.youtube.com/watch?v=" + videoId + "&t=" + randomSeconds + "s";
 
-        // Open in new tab
+        // Open in new tab[cite: 1]
         const newWindow = window.open(finalUrl, '_blank');
         
-        // Fallback if popup is blocked
+        // Fallback: If browser blocks the popup, use the current tab[cite: 1]
         if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') { 
             window.location.href = finalUrl; 
         }
